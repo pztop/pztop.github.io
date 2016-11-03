@@ -1,0 +1,671 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Bash script,DNS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="家里的公网IP地址有时会变化，这使得我的某些依赖域名的服务（网站，VPN，rsync备份等）随之陷入瘫痪。原来我是在我的路由器上用免费的DDNS功能，但这种免费服务一般不能使用自己的域名，又或者必须将域名迁移到DDNS的服务商那里。总之很是不爽。
+在V2EX看到很多人推荐，我把域名也转到了Namesilo。 （拜拜了，狗带！）Namesilo不仅价格合理，而且我发现竟然还有API接口支持！惊喜之后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Namesilo with DDNS">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/25/Namesilo-with-DDNS/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="家里的公网IP地址有时会变化，这使得我的某些依赖域名的服务（网站，VPN，rsync备份等）随之陷入瘫痪。原来我是在我的路由器上用免费的DDNS功能，但这种免费服务一般不能使用自己的域名，又或者必须将域名迁移到DDNS的服务商那里。总之很是不爽。
+在V2EX看到很多人推荐，我把域名也转到了Namesilo。 （拜拜了，狗带！）Namesilo不仅价格合理，而且我发现竟然还有API接口支持！惊喜之后">
+<meta property="og:updated_time" content="2016-04-25T22:38:29.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Namesilo with DDNS">
+<meta name="twitter:description" content="家里的公网IP地址有时会变化，这使得我的某些依赖域名的服务（网站，VPN，rsync备份等）随之陷入瘫痪。原来我是在我的路由器上用免费的DDNS功能，但这种免费服务一般不能使用自己的域名，又或者必须将域名迁移到DDNS的服务商那里。总之很是不爽。
+在V2EX看到很多人推荐，我把域名也转到了Namesilo。 （拜拜了，狗带！）Namesilo不仅价格合理，而且我发现竟然还有API接口支持！惊喜之后">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Namesilo with DDNS | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Namesilo with DDNS
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-25T12:17:38-07:00" content="2016-04-25">
+              2016-04-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Bash-script/" itemprop="url" rel="index">
+                    <span itemprop="name">Bash script</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/25/Namesilo-with-DDNS/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/25/Namesilo-with-DDNS/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>家里的公网IP地址有时会变化，这使得我的某些依赖域名的服务（网站，VPN，rsync备份等）随之陷入瘫痪。原来我是在我的路由器上用免费的DDNS功能，但这种免费服务一般不能使用自己的域名，又或者必须将域名迁移到DDNS的服务商那里。总之很是不爽。</p>
+<p>在V2EX看到很多人推荐，我把域名也转到了<a href="https://www.namesilo.com/?rid=606fd18nb" target="_blank" rel="external">Namesilo</a>。 （拜拜了，狗带！）Namesilo不仅价格合理，而且我发现竟然还有API接口支持！惊喜之后上网搜索有关Namesilo的DDNS方案，不料大失所望！只发现有在WINDOWS的POWERSHELL下的一个方案。</p>
+<p>好吧，那就自己动手解决吧。<br><a id="more"></a><br>家里反正有一个CentOS 7服务器在7X24运行，想在这上运行个Script脚本就行了。 下面就是具体的步骤：</p>
+<h2 id="生成API密钥-（API-Key）"><a href="#生成API密钥-（API-Key）" class="headerlink" title="生成API密钥 （API Key）"></a>生成API密钥 （API Key）</h2><p>登录Namesilo账号， 进到“API Manager”， 生成API Key。 注意不要限制IP，否则等于搬起石头砸自己的脚。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c40031261ee449037a4b4</span><br></pre></td></tr></table></figure></p>
+<p>把这个存好，后面要用到。</p>
+<h2 id="Bash脚本"><a href="#Bash脚本" class="headerlink" title="Bash脚本"></a>Bash脚本</h2><p>这个脚本首先检查IP对比以前的记录是否有变化。如果有变，就利用API接口去改动对应的IP地址。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">##Domain name:</span><br><span class="line">DOMAIN=&quot;mydomain.tld&quot;</span><br><span class="line"></span><br><span class="line">##Host name. </span><br><span class="line">##If you want manage host &quot;myhost.mydomain.tld&quot;, then</span><br><span class="line">HOST=&quot;myhost&quot;</span><br><span class="line"></span><br><span class="line">##APIKEY obtained from Namesilo:</span><br><span class="line">APIKEY=&quot;c40031261ee449037a4b4&quot;</span><br><span class="line"></span><br><span class="line">## Do not edit lines below ##</span><br><span class="line"></span><br><span class="line">##Saved history pubic IP from last check</span><br><span class="line">IP_FILE=&quot;/var/log/MyPubIP&quot;</span><br><span class="line"></span><br><span class="line">##Response from Namesilo</span><br><span class="line">RESPONSE=&quot;/tmp/namesilo_response.xml&quot;</span><br><span class="line"></span><br><span class="line">##Get the current public IP </span><br><span class="line">CUR_IP=$(curl -s http://icanhazip.com)</span><br><span class="line"></span><br><span class="line">##Exit if curl failed</span><br><span class="line">if [ $? -ne 0 ]; then</span><br><span class="line">   exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">##Check file for previous IP address</span><br><span class="line">if [ -f $IP_FILE ]; then</span><br><span class="line">  KNOWN_IP=$(cat $IP_FILE)</span><br><span class="line">else</span><br><span class="line">  KNOWN_IP=</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">##See if the IP has changed</span><br><span class="line">if [ &quot;$CUR_IP&quot; != &quot;$KNOWN_IP&quot; ]; then</span><br><span class="line">  echo $CUR_IP &gt; $IP_FILE</span><br><span class="line">  logger -t IP.Check -- Public IP changed to $CUR_IP</span><br><span class="line"></span><br><span class="line">  ##Update DNS record in Namesilo:</span><br><span class="line">  curl -s &quot;https://www.namesilo.com/api/dnsListRecords?version=1&amp;type=xml&amp;key=$APIKEY&amp;domain=$DOMAIN&quot; &gt; $DOMAIN.xml </span><br><span class="line">  RECORD_ID=`xmllint --xpath &quot;//namesilo/reply/resource_record/record_id[../host/text() = &apos;$HOST.$DOMAIN&apos; ]&quot; $DOMAIN.xml | grep -oP &apos;(?&lt;=&lt;record_id&gt;).*?(?=&lt;/record_id&gt;)&apos;`</span><br><span class="line">  curl -s &quot;https://www.namesilo.com/api/dnsUpdateRecord?version=1&amp;type=xml&amp;key=$APIKEY&amp;domain=$DOMAIN&amp;rrid=$RECORD_ID&amp;rrhost=$HOST&amp;rrvalue=$CUR_IP&amp;rrttl=7207&quot; &gt; $RESPONSE</span><br><span class="line">    RESPONSE_CODE=`xmllint --xpath &quot;//namesilo/reply/code/text()&quot;  $RESPONSE`</span><br><span class="line">       case $RESPONSE_CODE in</span><br><span class="line">       300)</span><br><span class="line">         logger -t IP.Check -- Update success. Now $HOST.$DOMAIN IP address is $CUR_IP;;</span><br><span class="line">       280)</span><br><span class="line">         logger -t IP.Check -- Duplicate record exist. No update necessary;;</span><br><span class="line">       *)</span><br><span class="line">         logger -t IP.Check -- DDNS update failed!;;</span><br><span class="line">     esac</span><br><span class="line"></span><br><span class="line">else</span><br><span class="line">  logger -t IP.Check -- NO IP change</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">exit 0</span><br></pre></td></tr></table></figure></p>
+<h2 id="cronjob"><a href="#cronjob" class="headerlink" title="cronjob"></a>cronjob</h2><p>最后，将这个script设置成cronjob,每小时运行一次。</p>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><p>首先在Namesilo的DNS Manager里加一个A记录。随机填HOST及IP地址，比如mytest映射到1.2.3.4<br>核实一下：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dig mytest.domain.tld @ns1.dnsowl.com</span><br></pre></td></tr></table></figure></p>
+<p>结果应该解析成1.2.3.4<br>（ns1.dnsowl.com， ns2.dnsowl.com， ns3.dnsowl.com 都是Nemesilo的DNS服务器。可以都试一下。）</p>
+<p>然后建一个IP历史记录文件:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">echo &gt; /var/log/MyPubIP</span><br></pre></td></tr></table></figure></p>
+<p>我这里是生成了一个空文件。实际上这个文件里可以是任何内容，只要不是你的公网IP地址就行。否则script就不会去更新DNS记录。</p>
+<p>运行script (要将其中的HOST， DOMAIN设定好)<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">HOST=&quot;mytest&quot;</span><br><span class="line">DOMAIN=&quot;domain.tld&quot;</span><br></pre></td></tr></table></figure></p>
+<p>然后运行即可.</p>
+<p>验证结果<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">dig mytest.domain.tld @ns1.dnsowl.com</span><br></pre></td></tr></table></figure></p>
+<p>结果应该解析成你的公网IP地址。 （如果你的结果还是1.2.3.4，可以换一个DNS服务器验证。毕竟DNS同步需要一点时间）</p>
+<h2 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h2><p>开始对将API Key用明码写在URL里有些顾忌，后来看到所有请求都有HTTPS加密，这才放心。</p>
+<p>另外，API Key一定要妥善保管，否则你懂的～～</p>
+<p>如果本文对您所有帮助，并您对Namesilo也有好感，请按此链接注册或迁移域名:<br><a href="https://www.namesilo.com/?rid=606fd18nb" target="_blank" rel="external">https://www.namesilo.com/?rid=606fd18nb</a></p>
+<hr>
+<p>Submitted to Github:<br><a href="https://github.com/pztop/namesilo_ddns" target="_blank" rel="external">https://github.com/pztop/namesilo_ddns</a></p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Bash-script/" rel="tag">#Bash script</a>
+          
+            <a href="/tags/DNS/" rel="tag">#DNS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/" rel="prev" title="Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)">
+                Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#生成API密钥-（API-Key）"><span class="nav-number">1.</span> <span class="nav-text">生成API密钥 （API Key）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bash脚本"><span class="nav-number">2.</span> <span class="nav-text">Bash脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cronjob"><span class="nav-number">3.</span> <span class="nav-text">cronjob</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#验证"><span class="nav-number">4.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全"><span class="nav-number">5.</span> <span class="nav-text">安全</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/25/Namesilo-with-DDNS/';
+      var disqus_title = 'Namesilo with DDNS';
+      var disqus_url = 'http://blog.pztop.com/2016/04/25/Namesilo-with-DDNS/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

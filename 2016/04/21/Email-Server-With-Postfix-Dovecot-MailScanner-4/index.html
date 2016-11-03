@@ -1,0 +1,700 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Postfix,Dovecot,MailScanner," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Both SPF and DKIM has two parts: One is the DNS records for SPF/DKIM serve the purpose of setting your own policy for others to check. The other is to check if the incoming mail message is in accordan">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="Both SPF and DKIM has two parts: One is the DNS records for SPF/DKIM serve the purpose of setting your own policy for others to check. The other is to check if the incoming mail message is in accordan">
+<meta property="og:image" content="http://blog.pztop.com/images/email_test_score.png">
+<meta property="og:updated_time" content="2016-04-26T18:48:28.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)">
+<meta name="twitter:description" content="Both SPF and DKIM has two parts: One is the DNS records for SPF/DKIM serve the purpose of setting your own policy for others to check. The other is to check if the incoming mail message is in accordan">
+<meta name="twitter:image" content="http://blog.pztop.com/images/email_test_score.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-21T14:05:53-07:00" content="2016-04-21">
+              2016-04-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Both SPF and DKIM has two parts: One is the DNS records for SPF/DKIM serve the purpose of setting your own policy for others to check. The other is to check if the incoming mail message is in accordance with the SPF/DKIM that is set by the admins of the domain from which the message was sent.<br><a id="more"></a></p>
+<h2 id="SPF"><a href="#SPF" class="headerlink" title="SPF"></a>SPF</h2><h3 id="DNS-txt-record"><a href="#DNS-txt-record" class="headerlink" title="DNS txt record"></a>DNS txt record</h3><p>Add a txt record to DNS server:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">@ TXT 300 v=spf1 a ip4:11.22.33.44/32 include:mydomain.com ~all</span><br></pre></td></tr></table></figure></p>
+<p>Test it by sending an email to <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#x3a;&#99;&#x68;&#x65;&#99;&#x6b;&#45;&#x61;&#x75;&#116;&#x68;&#x40;&#x76;&#x65;&#114;&#105;&#102;&#105;&#x65;&#x72;&#x2e;&#x70;&#111;&#114;&#116;&#x32;&#x35;&#x2e;&#x63;&#111;&#x6d;">&#99;&#x68;&#x65;&#99;&#x6b;&#45;&#x61;&#x75;&#116;&#x68;&#x40;&#x76;&#x65;&#114;&#105;&#102;&#105;&#x65;&#x72;&#x2e;&#x70;&#111;&#114;&#116;&#x32;&#x35;&#x2e;&#x63;&#111;&#x6d;</a> and will get a report back.</p>
+<h3 id="SPF-on-Postfix"><a href="#SPF-on-Postfix" class="headerlink" title="SPF on Postfix"></a>SPF on Postfix</h3><p>To prevent sender address forgery, we setup The Sender Policy Framework (SPF) on the postfix. When there is an incoming email, postfix will check the SPF record.</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install perl-Mail-SPF perl-Sys-Hostname-Long</span><br><span class="line"></span><br><span class="line">cd /usr/local/src</span><br><span class="line">wget https://launchpad.net/postfix-policyd-spf-perl/trunk/release2.010/+download/postfix-policyd-spf-perl-2.010.tar.gz</span><br><span class="line">tar zvxf postfix-policyd-spf-perl-2.010.tar.gz</span><br><span class="line">cd postfix-policyd-spf-perl-2.010</span><br><span class="line">cp postfix-policyd-spf-perl /usr/local/sbin/.</span><br></pre></td></tr></table></figure>
+<p>Then edit <code>/etc/postfix/master.cf</code> and add the following stanza at the end:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[...]</span><br><span class="line">policy     unix  -       n       n       -       -       spawn</span><br><span class="line">        user=nobody argv=/usr/bin/perl /usr/local/sbin/postfix-policyd-spf-perl</span><br></pre></td></tr></table></figure></p>
+<p>(The leading spaces before <code>user=nobody  ...</code>  are important so that Postfix knows that this line belongs to the previous one!)</p>
+<p>Then open <code>/etc/postfix/main.cf</code> and search for the <code>smtpd_recipient_restrictions</code> directive. You should have <code>reject_unauth_destination</code> in that directive, and right after <code>reject_unauth_destination</code> you add <code>check_policy_service unix:private/policy</code> like this:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">smtpd_recipient_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination, check_policy_service unix:private/policy</span><br><span class="line">policy_time_limit = 3600</span><br></pre></td></tr></table></figure></p>
+<p>Restart MailScanner, send an email from gmail to gao@mydomain.com, in header:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Received-SPF: pass (gmail.com ... _spf.google.com: Sender is authorized to use &apos;gao@gmail.com&apos; in &apos;mfrom&apos; identity (mechanism &apos;include:_netblocks.google.com&apos; matched)) receiver=szeta; identity=mailfrom; envelope-from=&quot;gao@gmail.com&quot;; helo=mail-pa0-f48.google.com; client-ip=209.85.220.48</span><br></pre></td></tr></table></figure></p>
+<h2 id="DKIM"><a href="#DKIM" class="headerlink" title="DKIM"></a>DKIM</h2><h3 id="OpenDKIM"><a href="#OpenDKIM" class="headerlink" title="OpenDKIM"></a>OpenDKIM</h3><p>Install OpenDKIM<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install opendkim</span><br></pre></td></tr></table></figure></p>
+<p>Generate keys for signing<br>You need to generate a private and a public key for each of the domains for which you wish to sign mail. The private key is stored away on your server, while the public key gets published in your domain’s DNS records so that receiving mail servers can verify your DKIM-signed mail.<br>You need decide now what the name of your selector is going to be. A selector is a unique keyword that is associated with both keys (public and private), included in all the signatures, and published in your DNS records. For simplicity, I use the word <strong>szeta</strong> as my default selector.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p /etc/opendkim/keys/mydomain.com</span><br><span class="line">/usr/sbin/opendkim-genkey -D /etc/opendkim/keys/mydomain.com/ -d mydomain.com -s szeta</span><br></pre></td></tr></table></figure></p>
+<p>Now we have two files for each domain(the text file is the public key).<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chown -R opendkim:opendkim /etc/opendkim/keys/*</span><br></pre></td></tr></table></figure></p>
+<p>Edit four configuration files:</p>
+<ol>
+<li><p><code>/etc/opendkim.conf</code> (I created a new file)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">##</span><br><span class="line">## opendkim.conf -- configuration file for OpenDKIM filter</span><br><span class="line">##</span><br><span class="line">AutoRestart             Yes</span><br><span class="line">AutoRestartRate         10/1h</span><br><span class="line">Canonicalization        relaxed/simple</span><br><span class="line">ExternalIgnoreList      refile:/etc/opendkim/TrustedHosts</span><br><span class="line">InternalHosts           refile:/etc/opendkim/TrustedHosts</span><br><span class="line">KeyTable                refile:/etc/opendkim/KeyTable</span><br><span class="line">LogWhy                  Yes</span><br><span class="line">Mode                    sv</span><br><span class="line">PidFile                 /var/run/opendkim/opendkim.pid</span><br><span class="line">SignatureAlgorithm      rsa-sha256</span><br><span class="line">SigningTable            refile:/etc/opendkim/SigningTable</span><br><span class="line">Socket                  inet:8891@localhost</span><br><span class="line">Syslog                  Yes</span><br><span class="line">SyslogSuccess           Yes</span><br><span class="line">TemporaryDirectory      /var/tmp</span><br><span class="line">UMask                   022</span><br><span class="line">UserID                  opendkim:opendkim</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/opendkim/KeyTable</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">szeta._domainkey.mydomain.com mydomain.com:szeta:/etc/opendkim/keys/mydomain.com/szeta</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/opendkim/SigningTable</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">*@mydomain.com szeta._domainkey.mydomain.com</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/opendkim/TrustedHosts</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">127.0.0.1</span><br><span class="line">::1</span><br><span class="line">localhost</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>Now enable OpenDKIM in Postfix, edit <code>/etc/postfix/main.cf</code>, add<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">smtpd_milters = inet:127.0.0.1:8891</span><br><span class="line">non_smtpd_milters = $smtpd_milters</span><br><span class="line">milter_default_action = accept</span><br></pre></td></tr></table></figure></p>
+<p>Now start services</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable opendkim</span><br><span class="line">systemctl start opendkim</span><br><span class="line">systemctl restart MailScanner</span><br></pre></td></tr></table></figure>
+<h3 id="DNS-txt-record-1"><a href="#DNS-txt-record-1" class="headerlink" title="DNS txt record"></a>DNS txt record</h3><p>Now that the mail server is signing outgoing mail and verifying incoming mail, you’ll need to put some information in your DNS records to tell other mail servers how your keys are set up, and provide the public key for them to check that your mail is properly signed.</p>
+<p>Use the public key created above to add a DNS TEXT record to mydomain.com. </p>
+<p>Check:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dig szeta._domainkey.mydomain.com TXT +noall +answer </span><br><span class="line"></span><br><span class="line">szeta._domainkey.mydomain.com. 3599 IN TXT  &quot;v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGYaonAHWmVitTa9p4QRmtjobBRyWflXwCa3akQ87aJ2iT8bg/25/t7dwzOq4nRS9CoW6vu9gVPBS6hWIumRoWFwYfwgUXGWCxMQLr6Nc7wuKnqPOoA6/JTa0s1o0QWiY18k1Rsh8p4/oRQilCEVjvdezRxsIigIEGUlEn9a+xqwIDAQAB&quot;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h3><p>Restart MailScanner then send email to <a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#x3a;&#99;&#104;&#x65;&#99;&#x6b;&#x2d;&#97;&#117;&#116;&#104;&#64;&#x76;&#101;&#x72;&#x69;&#102;&#105;&#101;&#x72;&#46;&#x70;&#111;&#x72;&#116;&#50;&#x35;&#x2e;&#x63;&#111;&#109;">&#99;&#104;&#x65;&#99;&#x6b;&#x2d;&#97;&#117;&#116;&#104;&#64;&#x76;&#101;&#x72;&#x69;&#102;&#105;&#101;&#x72;&#46;&#x70;&#111;&#x72;&#116;&#50;&#x35;&#x2e;&#x63;&#111;&#109;</a> then read the report, also analyse header as well.</p>
+<h2 id="DMARC"><a href="#DMARC" class="headerlink" title="DMARC"></a>DMARC</h2><p>A DMARC policy allows a sender to indicate that their emails are protected by SPF and/or DKIM, and give instruction if neither of those authentication methods passes. Please be sure you have a DKIM and SPF set before using DMARC.</p>
+<p>To enable DMARC, just add a TXT DNS record. Host name is <strong>_dmarc</strong> and text value is <strong>v=DMARC1; p=none ;rua=mailto:postmaster@mydomain.com</strong></p>
+<p>To check:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># dig _dmarc.mydomain.com TXT +noall +answer </span><br><span class="line">_dmarc.mydomain.com.  7207  IN  TXT  &quot;v=DMARC1\;p=none\;rua=mailto:postmaster@mydomain.com&quot;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Test-mail-server"><a href="#Test-mail-server" class="headerlink" title="Test mail server"></a>Test mail server</h2><p>A final test for the email server can be done at <a href="https://www.mail-tester.com/" target="_blank" rel="external">https://www.mail-tester.com/</a>. I got a score of 10/10! -:)<br><img src="/images/email_test_score.png" alt=""></p>
+<hr>
+<p>Quick links:</p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a></li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/MailScanner/" rel="tag">#MailScanner</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/" rel="prev" title="Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)">
+                Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SPF"><span class="nav-number">1.</span> <span class="nav-text">SPF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DNS-txt-record"><span class="nav-number">1.1.</span> <span class="nav-text">DNS txt record</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPF-on-Postfix"><span class="nav-number">1.2.</span> <span class="nav-text">SPF on Postfix</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DKIM"><span class="nav-number">2.</span> <span class="nav-text">DKIM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OpenDKIM"><span class="nav-number">2.1.</span> <span class="nav-text">OpenDKIM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DNS-txt-record-1"><span class="nav-number">2.2.</span> <span class="nav-text">DNS txt record</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test"><span class="nav-number">2.3.</span> <span class="nav-text">Test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DMARC"><span class="nav-number">3.</span> <span class="nav-text">DMARC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Test-mail-server"><span class="nav-number">4.</span> <span class="nav-text">Test mail server</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

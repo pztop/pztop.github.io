@@ -1,0 +1,675 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Raspberry Pi,Asterisk," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="I have an Asterisk server at home I built few years ago. It has an old Intel atom processor running on CentOS 6. It works quite well. I have couple SIP trunks to severial ITSP, including Google Voice.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec">
+<meta property="og:url" content="http://blog.pztop.com/2016/11/01/Asterisk13-on-RaspberryPi3/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="I have an Asterisk server at home I built few years ago. It has an old Intel atom processor running on CentOS 6. It works quite well. I have couple SIP trunks to severial ITSP, including Google Voice.">
+<meta property="og:updated_time" content="2016-11-03T15:57:14.646Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec">
+<meta name="twitter:description" content="I have an Asterisk server at home I built few years ago. It has an old Intel atom processor running on CentOS 6. It works quite well. I have couple SIP trunks to severial ITSP, including Google Voice.">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-01T16:30:16-07:00" content="2016-11-01">
+              2016-11-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Asterisk/" itemprop="url" rel="index">
+                    <span itemprop="name">Asterisk</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Asterisk/Raspberry-Pi/" itemprop="url" rel="index">
+                    <span itemprop="name">Raspberry Pi</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/01/Asterisk13-on-RaspberryPi3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/01/Asterisk13-on-RaspberryPi3/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>I have an Asterisk server at home I built few years ago. It has an old Intel atom processor running on CentOS 6. It works quite well. I have couple SIP trunks to severial ITSP, including Google Voice. The Asterisk is version 11 LTS and it is a vinilla installation. </p>
+<p>The current Asterisk LTS version is 13 and it come with support of PJSIP. I never had a chance to learn PJSIP configuration. And I just happen to have a Raspberry Pi 3 on hand. So I think I should give a try.</p>
+<a id="more"></a>
+<h2 id="Raspbian-Jessie"><a href="#Raspbian-Jessie" class="headerlink" title="Raspbian Jessie"></a>Raspbian Jessie</h2><p>First, I load Raspbian on a 8GB micro SD card and boot it up. I try to keep this system clean and tight so I used “Raspbian Jessie Lite” (Release date: 2016-09-23) without Desktop. </p>
+<p>After the RPi up and running, set the timezone.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">timedatectl set-timezone America/Vancouver</span><br></pre></td></tr></table></figure></p>
+<p>And bring it up to date:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get upgrade</span><br><span class="line">sudo reboot</span><br></pre></td></tr></table></figure></p>
+<p>After reboot, start installation as root</p>
+<h2 id="Install-MySQL-database"><a href="#Install-MySQL-database" class="headerlink" title="Install MySQL database"></a>Install MySQL database</h2><p>I need to use MySQL database to save CDR.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install mysql-server -y</span><br><span class="line">sudo mysql_secure_installation</span><br></pre></td></tr></table></figure></p>
+<p>The database creation and configration is just starand as on other platform. So I just skip them here.</p>
+<h2 id="Install-Asterisk"><a href="#Install-Asterisk" class="headerlink" title="Install Asterisk"></a>Install Asterisk</h2><p>Some dependencies need to be installed:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apt-get install build-essential</span><br><span class="line">apt-get install openssl libxml2-dev libncurses5-dev uuid-dev sqlite3 libsqlite3-dev pkg-config libjansson-dev subversion libiksemel-dev libspeex-dev libssl-dev libmyodbc unixodbc-dev libsrtp0-dev</span><br></pre></td></tr></table></figure></p>
+<p>Installation of Astersik is quite simple:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/src</span><br><span class="line">wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz</span><br><span class="line">tar zvxf asterisk-13-current.tar.gz</span><br><span class="line">cd asterisk-13.12.1/</span><br><span class="line">./contrib/scripts/get_mp3_source.sh</span><br><span class="line">./configure --with-pjproject-bundled</span><br><span class="line">make menuselect</span><br><span class="line">make -j 4</span><br><span class="line">make install</span><br><span class="line">make config</span><br><span class="line">make samples</span><br></pre></td></tr></table></figure></p>
+<h2 id="G729-Codec"><a href="#G729-Codec" class="headerlink" title="G729 Codec"></a>G729 Codec</h2><p>In order to compile the g729 codec for a Raspberry Pi(ARM processor), the fastest way is to build it with the bcg729. The bcg729 is a software encoder for g729a and decoder library written from scratch.</p>
+<p>The resulting codec will be x2 slower than if it has been compiled with IPP, but it’s good enough for my home use.</p>
+<h3 id="Install-autoreconf"><a href="#Install-autoreconf" class="headerlink" title="Install autoreconf:"></a>Install autoreconf:</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install dh-autoreconf</span><br></pre></td></tr></table></figure>
+<h3 id="bcg729"><a href="#bcg729" class="headerlink" title="bcg729"></a>bcg729</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/src</span><br><span class="line">wget http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-1.0.0.tar.gz</span><br><span class="line">tar xzf bcg729-1.0.0.tar.gz</span><br><span class="line">cd bcg729-1.0.0</span><br><span class="line">./configure --libdir=/lib</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<h3 id="Compiling-g729-codecs"><a href="#Compiling-g729-codecs" class="headerlink" title="Compiling g729 codecs"></a>Compiling g729 codecs</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/src</span><br><span class="line">wget http://asterisk.hosting.lv/src/asterisk-g72x-1.2.tar.bz2</span><br><span class="line">tar xjf asterisk-g72x-1.4.tar.bz2</span><br><span class="line">cd asterisk-g72x-1.4</span><br><span class="line">./autogen.sh</span><br><span class="line">./configure CFLAGS=&apos;-march=armv6&apos; --with-asterisk130 --with-bcg729  --with-asterisk-includes=../asterisk-13.12.1/include</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+<h3 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h3><p>Restart asterisk and log in CLI:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">core show translation</span><br></pre></td></tr></table></figure></p>
+<p>It looks good, g729 is on the list!</p>
+<p>Time to learn chan_pjsip now.</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Raspberry-Pi/" rel="tag">#Raspberry Pi</a>
+          
+            <a href="/tags/Asterisk/" rel="tag">#Asterisk</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/" rel="next" title="Install Google Earth on Ubuntu 16.04">
+                <i class="fa fa-chevron-left"></i> Install Google Earth on Ubuntu 16.04
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Raspbian-Jessie"><span class="nav-number">1.</span> <span class="nav-text">Raspbian Jessie</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-MySQL-database"><span class="nav-number">2.</span> <span class="nav-text">Install MySQL database</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Asterisk"><span class="nav-number">3.</span> <span class="nav-text">Install Asterisk</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#G729-Codec"><span class="nav-number">4.</span> <span class="nav-text">G729 Codec</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-autoreconf"><span class="nav-number">4.1.</span> <span class="nav-text">Install autoreconf:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bcg729"><span class="nav-number">4.2.</span> <span class="nav-text">bcg729</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Compiling-g729-codecs"><span class="nav-number">4.3.</span> <span class="nav-text">Compiling g729 codecs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test"><span class="nav-number">4.4.</span> <span class="nav-text">Test</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/11/01/Asterisk13-on-RaspberryPi3/';
+      var disqus_title = 'Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec';
+      var disqus_url = 'http://blog.pztop.com/2016/11/01/Asterisk13-on-RaspberryPi3/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,690 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Ubuntu,Google Earth," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="UPDATE 2016-09-07Google has a new release of Google Earth on Aug. 25 2016 which make the installation on Ubuntu so much easier. No more fix and work-around needed! (Thanks Martin posted this great new">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Install Google Earth on Ubuntu 16.04">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="UPDATE 2016-09-07Google has a new release of Google Earth on Aug. 25 2016 which make the installation on Ubuntu so much easier. No more fix and work-around needed! (Thanks Martin posted this great new">
+<meta property="og:updated_time" content="2016-09-07T20:53:03.405Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Install Google Earth on Ubuntu 16.04">
+<meta name="twitter:description" content="UPDATE 2016-09-07Google has a new release of Google Earth on Aug. 25 2016 which make the installation on Ubuntu so much easier. No more fix and work-around needed! (Thanks Martin posted this great new">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Install Google Earth on Ubuntu 16.04 | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Install Google Earth on Ubuntu 16.04
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-28T16:30:16-07:00" content="2016-04-28">
+              2016-04-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Ubuntu/" itemprop="url" rel="index">
+                    <span itemprop="name">Ubuntu</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="UPDATE-2016-09-07"><a href="#UPDATE-2016-09-07" class="headerlink" title="UPDATE 2016-09-07"></a>UPDATE 2016-09-07</h2><p>Google has a new release of Google Earth on Aug. 25 2016 which make the installation on Ubuntu so much easier. No more fix and work-around needed! (Thanks Martin posted this great news.)</p>
+<p>So I tried it on Ubuntu 16.04.1 and it just works.</p>
+<p>For new installation, download the .deb file from Google, then simply run<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install lsb-core</span><br><span class="line">sudo dpkg -i google-earth-stable_current_amd64.deb</span><br></pre></td></tr></table></figure></p>
+<p>If you have the previous version of GE installed, then remove it first:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -P google-earth-stable</span><br><span class="line">sudo rm -rf /opt/google/earth/free</span><br></pre></td></tr></table></figure></p>
+<p>After this you should get a working Google Earth version 7.1.7.2600</p>
+<hr>
+<blockquote>
+<p>The following is my old post back in April and I keep it here just for references.</p>
+</blockquote>
+<p>Ubuntu 16.04 LTS (Xenial Xerus) just released last week. I was testing it and had trouble to install Google Earth on it just like previous version of Ubuntu. </p>
+<p>My system is 64 bit Ubuntu 16.04. <s>The big problem is Ubuntu missing all the “lsb-*” packages which Google Earth depend on.</s> After few hours trial-and-error, finally I have the Google Earth running normally on my notebook.<br><a id="more"></a></p>
+<blockquote>
+<p>UPDATE (July 15 2016)<br>Today I tried to install Google Earth on a brand new ASUS Zenbook, I hit trouble when I try to install these “lsb-*” packages. After check around I see that Ubuntu now has brought back these packages to its repository. </p>
+<p>So for the “lsb packages” section below, all I need to do it install “lsb-core” (apt-get install lsb-core).</p>
+</blockquote>
+<p>Here is how to install:</p>
+<h2 id="Install-dependences"><a href="#Install-dependences" class="headerlink" title="Install dependences"></a>Install dependences</h2><p>First install these packages:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev flashplugin-installer libfreeimage3 libc6:i386</span><br></pre></td></tr></table></figure></p>
+<h2 id="lsb-packages"><a href="#lsb-packages" class="headerlink" title="lsb packages"></a>lsb packages</h2><p>Install lsb-core:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get install lsb-core</span><br></pre></td></tr></table></figure></p>
+<p>Check the “lsb-*” packages:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dpkg -l | grep lsb</span><br><span class="line">ii  lsb-base               9.20160110ubuntu0.2     all          Linux Standard Base init script functionality</span><br><span class="line">ii  lsb-core               9.20160110ubuntu0.2     amd64        Linux Standard Base core support package</span><br><span class="line">ii  lsb-invalid-mta        9.20160110ubuntu0.2     all          Linux Standard Base sendmail dummy</span><br><span class="line">ii  lsb-release            9.20160110ubuntu0.2     all          Linux Standard Base version reporting utility</span><br><span class="line">ii  lsb-security           9.20160110ubuntu0.2     amd64        Linux Standard Base Security package</span><br></pre></td></tr></table></figure></p>
+<h2 id="lsb-packages-Out-dated"><a href="#lsb-packages-Out-dated" class="headerlink" title="lsb packages (Out dated!)"></a><s>lsb packages</s> (Out dated!)</h2><p>I have to manually install three lsb packages: <code>lsb-core</code>, <code>lsb-security</code> and <code>lsb-invalid-mta</code><br>Download the packages first:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir ~/lsb</span><br><span class="line">cd ~/lsb</span><br><span class="line">wget http://archive.ubuntu.com/ubuntu/pool/main/l/lsb/lsb-security_4.1+Debian11ubuntu8_amd64.deb</span><br><span class="line">wget http://mirrors.kernel.org/ubuntu/pool/main/l/lsb/lsb-core_4.1+Debian11ubuntu6_amd64.deb</span><br><span class="line">wget http://archive.ubuntu.com/ubuntu/pool/main/l/lsb/lsb-invalid-mta_4.1+Debian11ubuntu8_all.deb</span><br></pre></td></tr></table></figure></p>
+<p>Try to insall these packages<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i *.deb</span><br></pre></td></tr></table></figure></p>
+<p>Here I saw some error output like this:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ sudo dpkg -i *.deb</span><br><span class="line">Selecting previously unselected package lsb-core.</span><br><span class="line">(Reading database ... 176877 files and directories currently installed.)</span><br><span class="line">Preparing to unpack lsb-core_4.1+Debian11ubuntu6_amd64.deb ...</span><br><span class="line">Unpacking lsb-core (4.1+Debian11ubuntu6) ...</span><br><span class="line">Selecting previously unselected package lsb-security.</span><br><span class="line">Preparing to unpack lsb-security_4.1+Debian11ubuntu8_amd64.deb ...</span><br><span class="line">Unpacking lsb-security (4.1+Debian11ubuntu8) ...</span><br><span class="line">dpkg: dependency problems prevent configuration of lsb-core:</span><br><span class="line"> lsb-core depends on lsb-invalid-mta (&gt;= 4.1+Debian11ubuntu6) | mail-transport-agent; however:</span><br><span class="line">  Package lsb-invalid-mta is not installed.</span><br><span class="line">  Package mail-transport-agent is not installed.</span><br><span class="line"> lsb-core depends on at; however:</span><br><span class="line">  Package at is not installed.</span><br><span class="line"> lsb-core depends on m4; however:</span><br><span class="line">  Package m4 is not installed.</span><br><span class="line"> lsb-core depends on mailx | mailutils; however:</span><br><span class="line">  Package mailx is not installed.</span><br><span class="line">  Package mailutils is not installed.</span><br><span class="line"> lsb-core depends on pax; however:</span><br><span class="line">  Package pax is not installed.</span><br><span class="line"> lsb-core depends on alien (&gt;= 8.36); however:</span><br><span class="line">  Package alien is not installed.</span><br><span class="line"> lsb-core depends on libc6-i386; however:</span><br><span class="line">  Package libc6-i386 is not installed.</span><br><span class="line"> lsb-core depends on lib32z1; however:</span><br><span class="line">  Package lib32z1 is not installed.</span><br><span class="line"></span><br><span class="line">dpkg: error processing package lsb-core (--install):</span><br><span class="line"> dependency problems - leaving unconfigured</span><br><span class="line">Setting up lsb-security (4.1+Debian11ubuntu8) ...</span><br><span class="line">Processing triggers for man-db (2.7.5-1) ...</span><br><span class="line">Errors were encountered while processing:</span><br><span class="line"> lsb-core</span><br></pre></td></tr></table></figure></p>
+<p>Now let fix this dependences issue by force installation:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt-get -f install</span><br></pre></td></tr></table></figure></p>
+<p>After this, install the DEB packages again:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i *.deb</span><br></pre></td></tr></table></figure></p>
+<p>This time it finished without error.</p>
+<h2 id="Install-Google-Earth"><a href="#Install-Google-Earth" class="headerlink" title="Install Google Earth:"></a>Install Google Earth:</h2><p>Download the deb file from Google site <a href="https://www.google.com/earth/download/ge/agree.html" target="_blank" rel="external">https://www.google.com/earth/download/ge/agree.html</a><br>Pick the <code>64 bit .deb</code> file.</p>
+<p>Then install it:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo dpkg -i google-earth-stable_current_amd64.deb</span><br></pre></td></tr></table></figure></p>
+<p>That’s it. Now I can start the Google Earth from my desktop.</p>
+<h2 id="Panoramio-blank-picture"><a href="#Panoramio-blank-picture" class="headerlink" title="Panoramio blank picture"></a>Panoramio blank picture</h2><p>There is a problem: when you try to click on the Panaramio photo, all I got is a blank frame. Don’t worry, let’s fix it:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /opt/google/earth/free/</span><br><span class="line">sudo wget https://googledrive.com/host/0B2F__nkihfiNalQzN0ZmcjBPTGs/ge7.1.1.1580-0.x86_64-new-qt-libs-debian7-ubuntu12.tar.xz</span><br><span class="line">sudo tar xvf ge7.1.1.1580-0.x86_64-new-qt-libs-debian7-ubuntu12.tar.xz</span><br></pre></td></tr></table></figure></p>
+<p>Done!<br>Now I have Goole Earth on Ubuntu 16.04.</p>
+<h2 id="Update-Fix-another-error"><a href="#Update-Fix-another-error" class="headerlink" title="[Update] Fix another error"></a>[Update] Fix another error</h2><p>I noticed after Google Earth installed on my system, when I try to update my system I got warning message:</p>
+<blockquote>
+<p>W: <a href="http://dl.google.com/linux/earth/deb/dists/stable/Release.gpg" target="_blank" rel="external">http://dl.google.com/linux/earth/deb/dists/stable/Release.gpg</a>: Signature by key 4CCA1EAF950CEE4AB83976DCA040830F7FAC5991 uses weak digest algorithm (SHA1)</p>
+</blockquote>
+<p>This is because the Google Earth installer automatically installed and enabled a google-earth repository in the system. The purpose is to automatically update Google Earth if there is a new release. Unfortunately it seems the repository maintainer (Google) uses the weak SHA1 which Ubuntu/Debian abandoned.</p>
+<p>So I have two choices here:</p>
+<ol>
+<li>Ignore this message. It won’t affect other update or installation. And it may let you update Google Earth in the future. </li>
+<li>Disable the google-earth repository. You won’t able to update Google Earth automatically after this. To disable it, excute this command:<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sed -e &apos;s/^deb/#deb/&apos; -i /etc/apt/sources.list.d/google-earth.list</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>Here I chose Option 2 for now.  </p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Ubuntu/" rel="tag">#Ubuntu</a>
+          
+            <a href="/tags/Google-Earth/" rel="tag">#Google Earth</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/01/Asterisk13-on-RaspberryPi3/" rel="prev" title="Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec">
+                Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#UPDATE-2016-09-07"><span class="nav-number">1.</span> <span class="nav-text">UPDATE 2016-09-07</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-dependences"><span class="nav-number">2.</span> <span class="nav-text">Install dependences</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lsb-packages"><span class="nav-number">3.</span> <span class="nav-text">lsb packages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lsb-packages-Out-dated"><span class="nav-number">4.</span> <span class="nav-text">lsb packages (Out dated!)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Install-Google-Earth"><span class="nav-number">5.</span> <span class="nav-text">Install Google Earth:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Panoramio-blank-picture"><span class="nav-number">6.</span> <span class="nav-text">Panoramio blank picture</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Update-Fix-another-error"><span class="nav-number">7.</span> <span class="nav-text">[Update] Fix another error</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/';
+      var disqus_title = 'Install Google Earth on Ubuntu 16.04';
+      var disqus_url = 'http://blog.pztop.com/2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

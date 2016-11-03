@@ -1,0 +1,769 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="CentOS,Nginx,MariaDB,SSL,Postfix,Dovecot,MailScanner," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Email server is quite complicate. It is not only just for sending and receiving emails, but also need lots features and protections. Recently I built such an email server for my company. The whole pro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="Email server is quite complicate. It is not only just for sending and receiving emails, but also need lots features and protections. Recently I built such an email server for my company. The whole pro">
+<meta property="og:updated_time" content="2016-04-26T18:48:55.487Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)">
+<meta name="twitter:description" content="Email server is quite complicate. It is not only just for sending and receiving emails, but also need lots features and protections. Recently I built such an email server for my company. The whole pro">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-20T11:17:17-07:00" content="2016-04-20">
+              2016-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/LEMP/" itemprop="url" rel="index">
+                    <span itemprop="name">LEMP</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Email server is quite complicate. It is not only just for sending and receiving emails, but also need lots features and protections. Recently I built such an email server for my company. The whole process is worth to document. </p>
+<p>I know there are some solutions exist for easy and quick setup a mail server, such as <a href="http://www.iredmail.org" target="_blank" rel="external">iRedMail</a>. But I prefer to build the server step by step from scratch. This way I can understand how these all different components put together and how they work with each other. It’s kind of like driving an automobile, knowing a little bit better how the engine and transmission works will help me when there is a problem or need improvement down the road.</p>
+<a id="more"></a>
+<h2 id="Features-and-Components"><a href="#Features-and-Components" class="headerlink" title="Features and Components"></a>Features and Components</h2><p>I begin with a list of some important features I needed for the mail system:</p>
+<ul>
+<li>support virtual domain and mailboxes </li>
+<li>support SMTP submission with STARTTLS</li>
+<li>support IMAP/POP3 with SSL/TLS</li>
+<li>have a secured web mail</li>
+<li>have a management web interface for user accounts</li>
+<li>have a management web interface for MailScanner</li>
+</ul>
+<p>Here I list the major components I will build on the new email server:</p>
+<ul>
+<li>LEMP server (CentOS 7 + Nginx + MariaDB + PHP)</li>
+<li>Postfix </li>
+<li>Dovecot (with Sieve filter) </li>
+<li>MailScanner (which using ClamAV and Spamassassin)</li>
+<li>MailWatch (Web UI for MailScanner)</li>
+<li>RoundCube webmail</li>
+<li>Postfix Admin (a web based interface used to manage mailboxes, virtual domains and aliases.)</li>
+<li>Fail2ban and iptables (Firewall)</li>
+<li>OpenSSL and Let’s Encripts SSL certificate</li>
+<li>OpenDKIM and SPF</li>
+</ul>
+<h2 id="Domain-name-and-DNS"><a href="#Domain-name-and-DNS" class="headerlink" title="Domain name and DNS"></a>Domain name and DNS</h2><p>Before I start to build the email server, I checked that I have these network related stuff ready:</p>
+<ul>
+<li>Domain name: <code>mydomain.com</code>. I’ll use subdomain <code>smtp.mydomain.com</code> as the host name of the mail server.</li>
+<li>A static IP from my ISP: 11.22.33.44</li>
+<li><p>DNS records:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mydomain.com.                  600     IN      A       11.22.33.44</span><br><span class="line">smtp.mydomain.com.             3600    IN      A       11.22.33.44</span><br><span class="line">mydomain.com.                  3599    IN      MX      10 smtp.mydomain.com.</span><br><span class="line">postfixadmin.mydomain.com.     1697    IN      CNAME   smtp.mydomain.com.</span><br><span class="line">mailwatch.mydomain.com.        1697    IN      CNAME   smtp.mydomain.com.</span><br><span class="line">roundcube.mydomain.com.        1697    IN      CNAME   smtp.mydomain.com.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Reverse DNS <em>PTR</em> record: (Need ask my ISP to set this reverse DNS up for me)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dig -x 11.22.33.44 +short</span><br><span class="line">smtp.mydomain.com.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="CentOS-installation"><a href="#CentOS-installation" class="headerlink" title="CentOS installation"></a>CentOS installation</h2><p>I installed CentOS 7.2 64bit which is my faverate OS for server platform. During the installation, I setup the static IP, time zone, and hard drive partitions. </p>
+<p>I’ll save all the emails in <code>/home/vmail</code> later on, so make sure it has enough space for email storage.</p>
+<p>Once I finished installation and reboot the server, I login in as root and start configration.</p>
+<h3 id="Disable-SELinux"><a href="#Disable-SELinux" class="headerlink" title="Disable SELinux"></a>Disable SELinux</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sed -i &apos;s/SELINUX=enforcing/SELINUX=disabled/g&apos; /etc/selinux/config</span><br></pre></td></tr></table></figure>
+<h3 id="Install-some-packages"><a href="#Install-some-packages" class="headerlink" title="Install some packages"></a>Install some packages</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install net-tools nano wget man bind-utils git mailx telnet</span><br></pre></td></tr></table></figure>
+<h3 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h3><p>Centos 7 come with <em>Firewalld</em> as the firewall but I like to use <em>iptables</em> for firewall, so let’s disable the default installed firewalld.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl mask firewalld</span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure></p>
+<p>Install iptables:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install iptables-services</span><br><span class="line">systemctl enable iptables</span><br><span class="line">systemctl start iptables</span><br></pre></td></tr></table></figure></p>
+<p>Now install fail2ban:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y epel-release</span><br><span class="line">yum install -y fail2ban jwhois</span><br></pre></td></tr></table></figure></p>
+<p>Create fail2ban local configration file:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local</span><br></pre></td></tr></table></figure></p>
+<p>Edit this file to enable sshd jail. Set:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[sshd]</span><br><span class="line">enabled = true</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>Now enable and start the fail2ban service:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl start fail2ban.service</span><br><span class="line">systemctl enable fail2ban.service</span><br></pre></td></tr></table></figure></p>
+<p>Now the ssh port 22 is protected by <code>Fail2ban</code> against brutal-force attack. In the future, anytime I need open up a new port for a service in iptables, I’ll also need to configure the corresponding fail2ban jail to have it protected.</p>
+<div class="alert alert-success"><i class="fa fa-lightbulb-o"></i>  There are lots scan activities on the well-known ssh port 22. So I changed the sshd to listen on a different port. Also configured iptables and fail2ban accordingly.</div>
+<h3 id="NTP"><a href="#NTP" class="headerlink" title="NTP"></a>NTP</h3><p>CentOS 7 use <code>chronyd</code> to keep the clock synchronized.<br>If timezone is not set, then:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">timedatectl set-timezone America/Vancouver</span><br></pre></td></tr></table></figure></p>
+<p>Now install Chrony:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y chrony</span><br><span class="line">systemctl enable chronyd</span><br><span class="line">systemctl start chronyd</span><br></pre></td></tr></table></figure></p>
+<p>Use the following commands to check the status:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">timedatectl</span><br><span class="line">chronyc tracking</span><br><span class="line">chronyc sources </span><br><span class="line">chronyc sourcestats</span><br></pre></td></tr></table></figure></p>
+<h3 id="Update-system-then-reboot"><a href="#Update-system-then-reboot" class="headerlink" title="Update system then reboot"></a>Update system then reboot</h3><p>Bring the system up to date:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y update &amp;&amp; reboot</span><br></pre></td></tr></table></figure></p>
+<p>After reboot, log in and check:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># sestatus</span><br><span class="line">SELinux status:                 disabled</span><br></pre></td></tr></table></figure></p>
+<h2 id="LEMP"><a href="#LEMP" class="headerlink" title="LEMP"></a>LEMP</h2><h3 id="MariaDB"><a href="#MariaDB" class="headerlink" title="MariaDB"></a>MariaDB</h3><p>Install MariaDB server:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install -y mariadb-server</span><br><span class="line">systemctl enable mariadb.service</span><br><span class="line">systemctl start mariadb.service</span><br></pre></td></tr></table></figure></p>
+<p>Secure MariaDB. Run this command, set the <em>root</em> password, and answer <em>Y</em> to all other questions:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql_secure_installation</span><br></pre></td></tr></table></figure></p>
+<h3 id="Install-Nginx"><a href="#Install-Nginx" class="headerlink" title="Install Nginx"></a>Install Nginx</h3><p>Add Nginx Repo by create a configration file <code>/etc/yum.repos.d/nginx.repo</code> with the following content:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[nginx]</span><br><span class="line">name=nginx repo</span><br><span class="line">baseurl=http://nginx.org/packages/mainline/centos/$releasever/$basearch/</span><br><span class="line">gpgcheck=0</span><br><span class="line">enabled=1</span><br></pre></td></tr></table></figure></p>
+<p>Install Nginx:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install nginx</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/nginx/nginx.conf</code>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">worker_processes 4;</span><br><span class="line">...</span><br><span class="line">gzip on;</span><br><span class="line">server_tokens off;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>Set <em>worker_processes</em> to the CPU core number. </p>
+<p>Start nginx:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable nginx.service</span><br><span class="line">systemctl start nginx.service</span><br></pre></td></tr></table></figure></p>
+<p>Check to see Nginx is running on port 80:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># netstat -ntlp | grep :80</span><br><span class="line">tcp        0      0 0.0.0.0:80       0.0.0.0:*        LISTEN      9901/nginx: master</span><br></pre></td></tr></table></figure></p>
+<p>Now open up port 80 and 443 on iptables. I can access <a href="http://smtp.mydomain.com" target="_blank" rel="external">http://smtp.mydomain.com</a> for the nginx’s default page.</p>
+<h3 id="Install-PHP5"><a href="#Install-PHP5" class="headerlink" title="Install PHP5"></a>Install PHP5</h3><p>PHP5 works in nginx through PHP-FPM. So install some php packages:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install php-fpm php-cli php-mysql php-gd php-mcrypt php-intl php-ldap php-odbc php-pdo php-pecl-memcache php-pear php-mbstring php-xml php-xmlrpc php-mbstring php-snmp php-soap php-imap</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/php.ini</code> , set<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">date.timezone = America/Vancouver</span><br><span class="line">cgi.fix_pathinfo = 0</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/php-fpm.d/www.conf</code>, use socket instead of TCP port for better performance:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">;listen = 127.0.0.1:9000</span><br><span class="line">listen = /var/run/php-fpm/php-fpm.sock</span><br><span class="line">user = nginx</span><br><span class="line">group = nginx</span><br></pre></td></tr></table></figure></p>
+<p>Next enable and start php-fpm:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable php-fpm.service</span><br><span class="line">systemctl start php-fpm.service</span><br></pre></td></tr></table></figure></p>
+<h3 id="Let’s-Encrypt-SSL-Certificate"><a href="#Let’s-Encrypt-SSL-Certificate" class="headerlink" title="Let’s Encrypt SSL Certificate"></a>Let’s Encrypt SSL Certificate</h3><p>I use the free LE SSL Cert for all the virtual hosts and SMTP/IMAP/POP3</p>
+<p>First make sure all DNS record are pointed to the correct IP. This includes all <em>A</em> records for @, www, and smtp.</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install git bc</span><br><span class="line">git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt</span><br></pre></td></tr></table></figure>
+<p>Also make sure port 443 is open on iptables.</p>
+<p>Obtain a certicate:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl stop nginx</span><br><span class="line">cd /opt/letsencrypt</span><br><span class="line">./letsencrypt-auto certonly --standalone</span><br></pre></td></tr></table></figure></p>
+<p>Fill in my email address, then agree the agreement, then fill in all the domain names:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mydomain.com, www.mydomain.com,smtp.mydomain.com, mailwatch.mydomain.com, postfixadmin.mydomain.com roundcube.mydomain.com</span><br></pre></td></tr></table></figure></p>
+<p>output:</p>
+<blockquote>
+<p>IMPORTANT NOTES:</p>
+<ul>
+<li>Congratulations! Your certificate and chain have been saved at<br>/etc/letsencrypt/live/mydomain.com/fullchain.pem. Your cert will<br>expire on 2016-05-29. To obtain a new version of the certificate in<br>the future, simply run Let’s Encrypt again.</li>
+</ul>
+</blockquote>
+<p>Let’s Encript SSL Cert is only valid for 90 days. To renew it, set a cron job (or wrote a script). The command to renew is:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/root/.local/share/letsencrypt/bin/letsencrypt renew --agree-tos</span><br></pre></td></tr></table></figure></p>
+<p>To test this command, add <code>--dry-run</code> flag at the end.</p>
+<p>Here is my simple bash script <em>le_renew.sh</em>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"></span><br><span class="line">systemctl stop nginx</span><br><span class="line">/root/.local/share/letsencrypt/bin/letsencrypt renew --agree-tos</span><br><span class="line">systemctl start nginx</span><br></pre></td></tr></table></figure></p>
+<div class="alert alert-success"><i class="fa fa-lightbulb-o"></i>  Tip: </div>
+<p>To obtain LE SSL certificates in one liner command:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/opt/letsencrypt/letsencrypt-auto certonly --standalone --agree-tos --email myemail@domain.tld -d mydomain.com -d www.mydomain.com -d smtp.mydomain.com -d mailwatch.mydomain.com -d postfixadmin.mydomain.com -d smtp.mydomain.com -d roundcube.mydomain.com</span><br></pre></td></tr></table></figure></p>
+<h3 id="Configure-Virtual-Host"><a href="#Configure-Virtual-Host" class="headerlink" title="Configure Virtual Host"></a>Configure Virtual Host</h3><p>I will have few web sites running on this server using named based virtual host. They are RoundCube webmail, Postfix Admin and MailWatch. </p>
+<p>I need to create a 2048 bit DH params file(default is 1024 bit):<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">openssl dhparam -out /etc/nginx/dhparams.pem 2048</span><br></pre></td></tr></table></figure></p>
+<p>Now let’s configure the first virtual host <code>postfixadmin.mydomain.com</code> by create a new configration file <code>/etc/nginx/conf.d/postfixadmin.conf</code> with content:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">  listen 80;</span><br><span class="line">  server_name postfixadmin.mydomain.com;</span><br><span class="line">  return 301 https://$server_name$request_uri; # enforce https</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">   listen          443 ssl;</span><br><span class="line">   server_name     postfixadmin.mydomain.com;</span><br><span class="line">   root            /var/www/html/postfixadmin;</span><br><span class="line">   index           index.php;</span><br><span class="line">   charset         utf-8;</span><br><span class="line">   access_log      /var/log/nginx/pa-access.log;</span><br><span class="line">   error_log       /var/log/nginx/pa-error.log;</span><br><span class="line"></span><br><span class="line">   ## SSL settings</span><br><span class="line">   ssl_certificate           /etc/letsencrypt/live/mydomain.com/fullchain.pem;</span><br><span class="line">   ssl_certificate_key           /etc/letsencrypt/live/mydomain.com/privkey.pem;</span><br><span class="line">   ssl_protocols             TLSv1.2 TLSv1.1 TLSv1;</span><br><span class="line">   ssl_prefer_server_ciphers on;</span><br><span class="line">   ssl_ciphers &quot;EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4&quot;;</span><br><span class="line">   ssl_dhparam               /etc/nginx/dhparams.pem;   </span><br><span class="line">   ssl_session_cache         shared:SSL:10m;</span><br><span class="line">   ssl_session_timeout       10m;</span><br><span class="line">   ssl_ecdh_curve            secp521r1;</span><br><span class="line"></span><br><span class="line">   add_header Strict-Transport-Security max-age=31536000;</span><br><span class="line"></span><br><span class="line">   location / &#123;</span><br><span class="line">      try_files $uri $uri/ index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   location ~ \.php$ &#123;</span><br><span class="line">        try_files $uri =404;</span><br><span class="line">        fastcgi_split_path_info ^(.+\.php)(/.+)$;</span><br><span class="line">        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">        include       fastcgi_params;</span><br><span class="line">        fastcgi_pass  unix:/run/php-fpm/php-fpm.sock;</span><br><span class="line">        fastcgi_index index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Let’s make a test page:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir /var/www/html/postfixadmin</span><br><span class="line">echo &quot;&lt;?php phpinfo(); ?&gt;&quot; &gt; /var/www/html/postfixadmin/info.php</span><br></pre></td></tr></table></figure></p>
+<p>Restart Nginx and test by go to <em><a href="http://postfixadmin.mydomain.com/info.php" target="_blank" rel="external">http://postfixadmin.mydomain.com/info.php</a></em>, it should jump to <em>https://</em> automatcally and show the PHP info page.</p>
+<p>A good test for SSL can be done at <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="external">SSL LABS</a>. I got the highest score “<em>A+</em>“!</p>
+<div class="alert alert-success"><i class="fa fa-lightbulb-o"></i>  Repeat the above steps to create other virtual host sites(mailwatch, roundcube). Later we will build these sites in their doc root directory.</div>
+<p>Now I have a basic LEMP server with SSL and firewall protections. I’m now ready to build the mail server on this system.</p>
+<hr>
+<p>Quick links: </p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a> </li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CentOS/" rel="tag">#CentOS</a>
+          
+            <a href="/tags/Nginx/" rel="tag">#Nginx</a>
+          
+            <a href="/tags/MariaDB/" rel="tag">#MariaDB</a>
+          
+            <a href="/tags/SSL/" rel="tag">#SSL</a>
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/MailScanner/" rel="tag">#MailScanner</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/" rel="prev" title="Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)">
+                Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Features-and-Components"><span class="nav-number">1.</span> <span class="nav-text">Features and Components</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Domain-name-and-DNS"><span class="nav-number">2.</span> <span class="nav-text">Domain name and DNS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CentOS-installation"><span class="nav-number">3.</span> <span class="nav-text">CentOS installation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Disable-SELinux"><span class="nav-number">3.1.</span> <span class="nav-text">Disable SELinux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-some-packages"><span class="nav-number">3.2.</span> <span class="nav-text">Install some packages</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Firewall"><span class="nav-number">3.3.</span> <span class="nav-text">Firewall</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NTP"><span class="nav-number">3.4.</span> <span class="nav-text">NTP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Update-system-then-reboot"><span class="nav-number">3.5.</span> <span class="nav-text">Update system then reboot</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LEMP"><span class="nav-number">4.</span> <span class="nav-text">LEMP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MariaDB"><span class="nav-number">4.1.</span> <span class="nav-text">MariaDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Nginx"><span class="nav-number">4.2.</span> <span class="nav-text">Install Nginx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-PHP5"><span class="nav-number">4.3.</span> <span class="nav-text">Install PHP5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Let’s-Encrypt-SSL-Certificate"><span class="nav-number">4.4.</span> <span class="nav-text">Let’s Encrypt SSL Certificate</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Configure-Virtual-Host"><span class="nav-number">4.5.</span> <span class="nav-text">Configure Virtual Host</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

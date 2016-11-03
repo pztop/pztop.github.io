@@ -1,0 +1,748 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MariaDB,SSL,Postfix,Dovecot,MailScanner," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Postfix is the mail transfer agent (MTA) that routes and delivers email. Dovecot is the IMAP and POP3 server. The two works together make a perfect email server.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="Postfix is the mail transfer agent (MTA) that routes and delivers email. Dovecot is the IMAP and POP3 server. The two works together make a perfect email server.">
+<meta property="og:image" content="http://blog.pztop.com/images/thunderbird_account_setup.png">
+<meta property="og:updated_time" content="2016-04-26T18:48:45.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)">
+<meta name="twitter:description" content="Postfix is the mail transfer agent (MTA) that routes and delivers email. Dovecot is the IMAP and POP3 server. The two works together make a perfect email server.">
+<meta name="twitter:image" content="http://blog.pztop.com/images/thunderbird_account_setup.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-20T16:17:20-07:00" content="2016-04-20">
+              2016-04-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Postfix is the mail transfer agent (MTA) that routes and delivers email. Dovecot is the IMAP and POP3 server. The two works together make a perfect email server.<br><a id="more"></a></p>
+<h2 id="Postfix"><a href="#Postfix" class="headerlink" title="Postfix"></a>Postfix</h2><p>Postfix is installed and running after default CentOS 7 installation. It is just a basic SMTP server lintening on local interface (127.0.0.1) and serve for existing local user only.</p>
+<h3 id="Database-for-virtual-domain-and-user"><a href="#Database-for-virtual-domain-and-user" class="headerlink" title="Database for virtual domain and user"></a>Database for virtual domain and user</h3><p>We will install PostfixAdmin which use MaridDB as back-end to handle virtual domain and user accounts. When Postfix and Dovecot want authenticate users they will query the MariaDB database.</p>
+<p>Login MariaDB as root and create a database <em>postfix</em>. Add user <em>postfix</em> and grant accesses to it.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql -uroot -p</span><br></pre></td></tr></table></figure></p>
+<p>Create a database<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">CREATE DATABASE postfix;</span><br><span class="line">CREATE USER &apos;postfix&apos;@&apos;localhost&apos; IDENTIFIED BY &apos;PApassword&apos;;</span><br><span class="line">GRANT ALL PRIVILEGES ON postfix.* TO &apos;postfix&apos;@&apos;localhost&apos;;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line">QUIT;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Postfix-Admin"><a href="#Postfix-Admin" class="headerlink" title="Postfix Admin"></a>Postfix Admin</h3><p><a href="http://postfixadmin.sourceforge.net/" target="_blank" rel="external">Postfix Admin</a> is a web based interface used to manage mailboxes, virtual domains and aliases</p>
+<p>Get the Postfix Admin site ready:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src</span><br><span class="line">wget http://downloads.sourceforge.net/project/postfixadmin/postfixadmin/postfixadmin-2.93/postfixadmin-2.93.tar.gz</span><br><span class="line">tar zvxf postfixadmin-2.93.tar.gz</span><br><span class="line">rm -rf /var/www/html/postfixadmin </span><br><span class="line">mv postfixadmin-2.93 /var/www/html/postfixadmin</span><br><span class="line">chown -R nginx:nginx /var/www/html/postfixadmin</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/var/www/html/postfixadmin/config.inc.php</code><br>With:<br><figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">$CONF[<span class="string">'configured'</span>] = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">$CONF[<span class="string">'database_type'</span>] = <span class="string">'mysqli'</span>;</span><br><span class="line">$CONF[<span class="string">'database_user'</span>] = <span class="string">'postfix'</span>;</span><br><span class="line">$CONF[<span class="string">'database_password'</span>] = <span class="string">'PApassword'</span>;</span><br><span class="line">$CONF[<span class="string">'database_name'</span>] = <span class="string">'postfix'</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>I also need to manual create a session dir:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir /var/lib/php/session/</span><br><span class="line">chown -R nginx:nginx /var/lib/php/session/</span><br></pre></td></tr></table></figure></p>
+<h3 id="Postfix-Admin-web-setup"><a href="#Postfix-Admin-web-setup" class="headerlink" title="Postfix Admin web setup"></a>Postfix Admin web setup</h3><p>Now go to <a href="https://postfixadmin.mydomain.com/setup.php" target="_blank" rel="external">https://postfixadmin.mydomain.com/setup.php</a> to continue the setup in the web interface.</p>
+<p>Type in “Setup Password” and generate password hash.<br>Copy this line back to <code>/var/www/html/postfixadmin/config.inc.php</code>, at line 30:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$CONF[&apos;setup_password&apos;] = &apos;82020bc067e2a6deaa3fba3632529114:0834f649bf09ee930910ab1b353e3f0722b77ee8&apos;;</span><br></pre></td></tr></table></figure></p>
+<p>Then create the superadmin account.</p>
+<p>Now use the superadmin account to login at <a href="https://postfixadmin.mydomain.com/login.php" target="_blank" rel="external">https://postfixadmin.mydomain.com/login.php</a>. This is the admin login.</p>
+<p>Once we create user email account, the user may login to manage their own account at <a href="https://postfixadmin.mydomain.com/users/login.php" target="_blank" rel="external">https://postfixadmin.mydomain.com/users/login.php</a>. Note the different address.</p>
+<p>Bug Fix:<br>After login, click on “Fetch email” I got error “Invalid query: FUNCTION postfix.FROM_BASE64 does not exist”<br>To fix it, edit <code>/var/www/html/postfixadmin/model/PFAHandler.php</code> at line 572:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$base64_decode = &quot;###KEY###&quot;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Link-Postfix-to-MariaDB"><a href="#Link-Postfix-to-MariaDB" class="headerlink" title="Link Postfix to MariaDB"></a>Link Postfix to MariaDB</h3><p>Create 5 database query configration files:</p>
+<ol>
+<li><p><code>/etc/postfix/mysql-virtual_domains_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT domain FROM domain WHERE domain=&apos;%s&apos; AND backupmx = &apos;0&apos; AND active = &apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-relay_domains_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT domain FROM domain WHERE domain=&apos;%s&apos; and backupmx = &apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-virtual_mailbox_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT maildir FROM mailbox WHERE username=&apos;%s&apos; AND active = &apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-virtual_mailbox_limit_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT quota FROM mailbox WHERE username=&apos;%s&apos; and active = &apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-virtual_alias_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT goto FROM alias WHERE address=&apos;%s&apos; AND active = &apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>Change permission to protect this files:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chgrp postfix mysql-*.cf</span><br><span class="line">chmod 640 /etc/postfix/mysql-*.cf</span><br></pre></td></tr></table></figure></p>
+<p>Make Postfix use these 5 files to qurey database, add the following lines to <code>/etc/postfix/main.cf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">relay_domains = proxy:mysql:/etc/postfix/mysql-relay_domains_maps.cf</span><br><span class="line">virtual_alias_maps = proxy:mysql:/etc/postfix/mysql-virtual_alias_maps.cf,regexp:/etc/postfix/virtual_regexp</span><br><span class="line">virtual_mailbox_domains = proxy:mysql:/etc/postfix/mysql-virtual_domains_maps.cf</span><br><span class="line">virtual_mailbox_maps = proxy:mysql:/etc/postfix/mysql-virtual_mailbox_maps.cf</span><br><span class="line">virtual_mailbox_limit_maps = proxy:mysql:/etc/postfix/mysql-virtual_mailbox_limit_maps.cf</span><br><span class="line">proxy_read_maps = $local_recipient_maps $mydestination $virtual_alias_maps $virtual_alias_domains $virtual_mailbox_maps $virtual_mailbox_domains $relay_recipient_maps $relay_domains $canonical_maps $sender_canonical_maps $recipient_canonical_maps $relocated_maps $transport_maps $mynetworks $smtpd_sender_login_maps $sender_bcc_maps $recipient_bcc_maps $smtp_generic_maps $lmtp_generic_maps $alias_maps $virtual_mailbox_limit_maps</span><br></pre></td></tr></table></figure></p>
+<p>Create <code>virtual_regexp</code> file<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">touch /etc/postfix/virtual_regexp</span><br></pre></td></tr></table></figure></p>
+<p>To enable postfix listen on all interface, edit <code>/etc/postfix/main.cf</code> line 113,116:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">inet_interfaces = all</span><br><span class="line">#inet_interfaces = localhost</span><br></pre></td></tr></table></figure></p>
+<h3 id="vmail-user"><a href="#vmail-user" class="headerlink" title="vmail user"></a>vmail user</h3><p>Create a local user <em>vmail</em> and set its home dir as maildir:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">groupadd -g 5000 vmail</span><br><span class="line">mkdir /home/vmail</span><br><span class="line">chmod 770 /home/vmail/</span><br><span class="line">useradd -r -u 5000 -g vmail -d /home/vmail/ -s /sbin/nologin -c &quot;Virtual Mailbox&quot; vmail</span><br><span class="line">chown vmail:vmail /home/vmail/</span><br></pre></td></tr></table></figure></p>
+<p>Make postfix to use this <em>vmail</em> account, add to <code>/etc/postfix/main.cf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">virtual_uid_maps = static:5000</span><br><span class="line">virtual_gid_maps = static:5000</span><br><span class="line">virtual_mailbox_base = /home/vmail</span><br></pre></td></tr></table></figure></p>
+<p>Restart postfix:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl restart postfix</span><br></pre></td></tr></table></figure></p>
+<p>Also open TCP port 25 in iptables. </p>
+<p>Now the Postfix SMTP is running. I can test it from another computer:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ telnet smtp.mydomain.com 25</span><br><span class="line">Trying 11.22.33.44...</span><br><span class="line">Connected to smtp.mydomain.com.</span><br><span class="line">Escape character is &apos;^]&apos;.</span><br><span class="line">220 smtp.mydomain.com ESMTP Postfix</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test-virtual-domain-mailbox"><a href="#Test-virtual-domain-mailbox" class="headerlink" title="Test virtual domain/mailbox"></a>Test virtual domain/mailbox</h3><h4 id="Setup-test-email-account"><a href="#Setup-test-email-account" class="headerlink" title="Setup test email account"></a>Setup test email account</h4><p>Go to Postfix Admin site [<a href="https://postfixadmin.mydomain.com" target="_blank" rel="external">https://postfixadmin.mydomain.com</a>], log in as admin user, then create a virtual domain. In my case, I go to “Domain List” –&gt; “New Domain”, add “mydomain.com”.</p>
+<p>Next go to “Virtual List”, then “Add Mailbox”, add a newmail box(Username: “gao”). Make sure “Active” and “Send Welcome mail” are checked. Then click on “Add Mailbox”.</p>
+<h4 id="Test-receiving-email"><a href="#Test-receiving-email" class="headerlink" title="Test receiving email"></a>Test receiving email</h4><p>If everything is ok, you should see an email has been sent to gao@mydomain.com in the <code>/var/log/maillog</code> log file:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Apr 20 15:47:13 smtp postfix/smtpd[27293]: connect from localhost[::1]</span><br><span class="line">Apr 20 15:47:14 smtp postfix/smtpd[27293]: 5CC0199812: client=localhost[::1]</span><br><span class="line">Apr 20 15:47:14 smtp postfix/cleanup[27300]: 5CC0199812: message-id=&lt;20160420224714.5CC0199812@smtp.mydomain.com&gt;</span><br><span class="line">Apr 20 15:47:14 smtp postfix/smtpd[27293]: disconnect from localhost[::1]</span><br><span class="line">Apr 20 15:47:14 smtp postfix/qmgr[27051]: 5CC0199812: from=&lt;gao@mydomain.com&gt;, size=485, nrcpt=1 (queue active)</span><br><span class="line">Apr 20 15:47:14 smtp postfix/virtual[27309]: 5CC0199812: to=&lt;gao@mydomain.com&gt;, relay=virtual, delay=0.34, delays=0.11/0.07/0/0.17, dsn=2.0.0, status=sent (delivered to maildir)</span><br><span class="line">Apr 20 15:47:14 smtp postfix/qmgr[27051]: 5CC0199812: removed</span><br></pre></td></tr></table></figure></p>
+<p>Check the maildir I saw the email has been put in the maildir:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ls -l /home/vmail/mydomain.com/gao/new/</span><br><span class="line">total 4</span><br><span class="line">-rw------- 1 vmail vmail 568 Apr 20 15:47 1461192434.Vfd02I30000081M492053.smtp.mydomain.com</span><br></pre></td></tr></table></figure></p>
+<p>I also tested it by sending an email from my Gmail account and watch the maillog to see the mail arrived.</p>
+<h4 id="Test-send-email-out"><a href="#Test-send-email-out" class="headerlink" title="Test send email out"></a>Test send email out</h4><p>I still use <code>telnet</code> command from a remote PC to send a test email out:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ telnet smtp.mydomain.com 25</span><br><span class="line">Trying 11.22.33.44...</span><br><span class="line">Connected to smtp.mydomain.com.</span><br><span class="line">Escape character is &apos;^]&apos;.</span><br><span class="line">220 smtp.mydomain.com ESMTP Postfix</span><br><span class="line">EHLO jade</span><br><span class="line">250-smtp.mydomain.com</span><br><span class="line">250-PIPELINING</span><br><span class="line">250-SIZE 10240000</span><br><span class="line">250-VRFY</span><br><span class="line">250-ETRN</span><br><span class="line">250-ENHANCEDSTATUSCODES</span><br><span class="line">250-8BITMIME</span><br><span class="line">250 DSN</span><br><span class="line">MAIL FROM: gao@mydomain.com</span><br><span class="line">250 2.1.0 Ok</span><br><span class="line">RCPT TO: mytestmail@gmail.com</span><br><span class="line">250 2.1.5 Ok</span><br><span class="line">DATA</span><br><span class="line">354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;</span><br><span class="line">Subject: this is a telnet test</span><br><span class="line"></span><br><span class="line">Hi,this is just a quick test form telnet.</span><br><span class="line">.</span><br><span class="line">250 2.0.0 Ok: queued as 2528F1A4E3</span><br><span class="line">QUIT</span><br><span class="line">221 2.0.0 Bye</span><br><span class="line">Connection closed by foreign host.</span><br></pre></td></tr></table></figure>
+<p>Check the maillog to make sure the mail is send out.</p>
+<p>At this stage, sending email to Gmail may fail. This will be fixed later by setup proper SPF and DKIM record in our DNS settings. If you have to test with Gmail then you may add mydomain.com as truseted domain at [<a href="https://postmaster.google.com" target="_blank" rel="external">https://postmaster.google.com</a>]</p>
+<h3 id="SMTP-Submission"><a href="#SMTP-Submission" class="headerlink" title="SMTP Submission"></a>SMTP Submission</h3><p>I will enable SMTP submission on port 587, and use dovecot embebed SASL authentication to verify user identity.</p>
+<p>Edit <code>/etc/postfix/master.cf</code>, remove comments in these lines:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">submission inet n       -       n       -       -       smtpd</span><br><span class="line">  -o syslog_name=postfix/submission</span><br><span class="line">  -o smtpd_tls_security_level=encrypt</span><br><span class="line">  -o smtpd_sasl_auth_enable=yes</span><br><span class="line">  -o smtpd_reject_unlisted_recipient=no</span><br><span class="line">  -o smtpd_client_restrictions=$mua_client_restrictions</span><br><span class="line">  -o smtpd_helo_restrictions=$mua_helo_restrictions</span><br><span class="line">  -o smtpd_sender_restrictions=$mua_sender_restrictions</span><br><span class="line">  -o smtpd_recipient_restrictions=permit_sasl_authenticated,reject</span><br><span class="line">  -o milter_macro_daemon_name=ORIGINATING</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/postfix/main.cf</code>, add lines:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">smtpd_sasl_type = dovecot</span><br><span class="line">smtpd_sasl_path = private/auth</span><br><span class="line">smtpd_sasl_auth_enable = yes</span><br><span class="line">smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination</span><br><span class="line"></span><br><span class="line">smtpd_tls_cert_file = /etc/letsencrypt/live/mydomain.com/fullchain.pem</span><br><span class="line">smtpd_tls_key_file = /etc/letsencrypt/live/mydomain.com/privkey.pem</span><br><span class="line">smtpd_tls_security_level = may</span><br><span class="line"></span><br><span class="line">#Disable sslv2 ad SSLv3</span><br><span class="line">smtpd_tls_protocols= !SSLv2, !SSLv3</span><br><span class="line">smtpd_tls_mandatory_protocols= !SSLv2, !SSLv3</span><br><span class="line"></span><br><span class="line">#set minimum TLS ciphers grade for tls</span><br><span class="line">smtpd_tls_mandatory_ciphers = high</span><br><span class="line"></span><br><span class="line">#use server ciphers instead client preference</span><br><span class="line">tls_preempt_cipherlist = yes</span><br><span class="line"></span><br><span class="line">#ciphers to exclude</span><br><span class="line">smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL</span><br><span class="line"></span><br><span class="line">#disallow plain login</span><br><span class="line">smtpd_tls_auth_only = yes</span><br><span class="line"></span><br><span class="line">mua_client_restrictions = permit_sasl_authenticated,reject</span><br><span class="line">mua_helo_restrictions = permit_sasl_authenticated,reject</span><br><span class="line">mua_sender_restrictions = permit_sasl_authenticated,reject</span><br></pre></td></tr></table></figure></p>
+<p>Restart postfix<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl restart postfix</span><br></pre></td></tr></table></figure></p>
+<h2 id="Dovecot"><a href="#Dovecot" class="headerlink" title="Dovecot"></a>Dovecot</h2><p>I use Dovecot to provide POP amd IMAP services so the user can use an email client(Thunderbird, Outlook.,etc) to retrive emails.</p>
+<h3 id="Install-dovecot"><a href="#Install-dovecot" class="headerlink" title="Install dovecot"></a>Install dovecot</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install dovecot dovecot-mysql dovecot-pigeonhole</span><br></pre></td></tr></table></figure>
+<h3 id="dovecot-main-config-file"><a href="#dovecot-main-config-file" class="headerlink" title="dovecot main config file"></a>dovecot main config file</h3><p>Edit dovecot main config file <code>/etc/dovecot/dovecot.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">protocols = imap pop3</span><br><span class="line">listen = *</span><br><span class="line">shutdown_clients = yes</span><br></pre></td></tr></table></figure></p>
+<p>Enable and start dovecot:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable dovecot</span><br><span class="line">systemctl start dovecot</span><br></pre></td></tr></table></figure></p>
+<p>Check use <code>netstat</code> to see dovecot is listening on port 110,143,993,995</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># netstat -ntlp | grep dovecot</span><br><span class="line">tcp        0      0 0.0.0.0:110       0.0.0.0:*      LISTEN      7564/dovecot        </span><br><span class="line">tcp        0      0 0.0.0.0:143       0.0.0.0:*      LISTEN      7564/dovecot        </span><br><span class="line">tcp        0      0 0.0.0.0:993       0.0.0.0:*      LISTEN      7564/dovecot        </span><br><span class="line">tcp        0      0 0.0.0.0:995       0.0.0.0:*      LISTEN      7564/dovecot</span><br></pre></td></tr></table></figure>
+<h3 id="Dovecot-authentication"><a href="#Dovecot-authentication" class="headerlink" title="Dovecot authentication"></a>Dovecot authentication</h3><p>I configured Dovecot to use database created by PostfixAdmin for user authentication with Let’s Encript’s SSL certificate:</p>
+<h4 id="database-query-configration"><a href="#database-query-configration" class="headerlink" title="database query configration"></a>database query configration</h4><p>Create a file <code>/etc/dovecot/conf.d/dovecot-mysql.conf.ext</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">driver = mysql</span><br><span class="line">connect = host=localhost dbname=postfix user=postfix password=PApassword</span><br><span class="line">password_query = SELECT username as user, password, concat(&apos;/home/vmail/&apos;, maildir) as userdb_home,  concat(&apos;maildir:/home/vmail/&apos;, maildir) as userdb_mail, 5000 as userdb_uid, 5000 as userdb_gid FROM mailbox  WHERE username = &apos;%u&apos; AND active = &apos;1&apos;</span><br><span class="line">user_query = SELECT concat(&apos;/home/vmail/&apos;, maildir) as home, concat(&apos;maildir:/home/vmail/&apos;, maildir) as mail,  5000 AS uid, 5000 AS gid, CONCAT(&apos;*:bytes=&apos;, quota) as quota_rule FROM mailbox WHERE  username = &apos;%u&apos; AND active = &apos;1&apos;</span><br></pre></td></tr></table></figure></p>
+<p>Also we need a file to provide information about accounts quota. Edit <code>/etc/dovecot/conf.d/dovecot-mysql-quota.conf.ext</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">connect = host=localhost dbname=postfix user=postfix password=PApassword</span><br><span class="line">map &#123;</span><br><span class="line">  pattern = priv/quota/storage</span><br><span class="line">  table = quota2</span><br><span class="line">  username_field = username</span><br><span class="line">  value_field = bytes</span><br><span class="line">&#125;</span><br><span class="line">map &#123;</span><br><span class="line">  pattern = priv/quota/messages</span><br><span class="line">  table = quota2</span><br><span class="line">  username_field = username</span><br><span class="line">  value_field = messages</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Set file permission<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chmod 640 /etc/dovecot/conf.d/dovecot-mysql*</span><br></pre></td></tr></table></figure></p>
+<p>With above files dovecot will query mariadb info about users idendity and mailbox quotas.</p>
+<h4 id="Make-dovecot-use-MariaDB-for-authentication"><a href="#Make-dovecot-use-MariaDB-for-authentication" class="headerlink" title="Make dovecot use MariaDB for authentication"></a>Make dovecot use MariaDB for authentication</h4><p>Edit <code>/etc/dovecot/conf.d/auth-sql.conf.ext</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">passdb &#123;</span><br><span class="line">  driver = sql</span><br><span class="line">  args = /etc/dovecot/conf.d/dovecot-mysql.conf.ext</span><br><span class="line">&#125;</span><br><span class="line">userdb &#123;</span><br><span class="line">  driver = sql</span><br><span class="line">  args = /etc/dovecot/conf.d/dovecot-mysql.conf.ext</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Enable dovecot to use sql_auth, edit <code>/etc/dovecot/conf.d/10-auth.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">disable_plaintext_auth = yes</span><br><span class="line"></span><br><span class="line">auth_mechanisms = plain login cram-md5</span><br><span class="line"></span><br><span class="line">#!include auth-system.conf.ext</span><br><span class="line">!include auth-sql.conf.ext</span><br></pre></td></tr></table></figure></p>
+<h4 id="Enable-SSL-TLS-support"><a href="#Enable-SSL-TLS-support" class="headerlink" title="Enable SSL/TLS support"></a>Enable SSL/TLS support</h4><p>Edit <code>/etc/dovecot/conf.d/10-ssl.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ssl_cert = &lt;/etc/letsencrypt/live/mydomain.com/fullchain.pem</span><br><span class="line">ssl_key = &lt;/etc/letsencrypt/live/mydomain.com/privkey.pem</span><br><span class="line"></span><br><span class="line"># SSL protocols to use</span><br><span class="line">ssl_protocols = !SSLv2 !SSLv3</span><br><span class="line"># SSL ciphers to use</span><br><span class="line">ssl_cipher_list = EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4</span><br><span class="line"> </span><br><span class="line"># Prefer the server&apos;s order of ciphers over client&apos;s.</span><br><span class="line">ssl_prefer_server_ciphers = yes</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/dovecot/conf.d/10-master.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">service imap-login &#123;</span><br><span class="line">  inet_listener imap &#123;</span><br><span class="line">    port = 143</span><br><span class="line">  &#125;</span><br><span class="line">  inet_listener imaps &#123;</span><br><span class="line">    port = 993</span><br><span class="line">    ssl = yes</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">service pop3-login &#123;</span><br><span class="line">  inet_listener pop3 &#123;</span><br><span class="line">    port = 110</span><br><span class="line">  &#125;</span><br><span class="line">  inet_listener pop3s &#123;</span><br><span class="line">    port = 995</span><br><span class="line">    ssl = yes</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">service auth &#123;</span><br><span class="line"> </span><br><span class="line">  unix_listener /var/spool/postfix/private/auth &#123;</span><br><span class="line">    mode = 0666</span><br><span class="line">    user = vmail</span><br><span class="line">    group = vmail</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="Maildir-and-mail-user"><a href="#Maildir-and-mail-user" class="headerlink" title="Maildir and mail user"></a>Maildir and mail user</h4><p>Edit <code>/etc/dovecot/conf.d/10-mail.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mail_location = maildir:/home/vmail/%d/%n/:INDEX=/home/vmail/%d/%n/indexes</span><br><span class="line">mail_uid =5000</span><br><span class="line">mail_gid =5000</span><br><span class="line">first_valid_uid = 5000</span><br><span class="line">last_valid_uid = 5000</span><br><span class="line">first_valid_gid = 5000</span><br><span class="line">last_valid_gid = 5000</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test-dovecot"><a href="#Test-dovecot" class="headerlink" title="Test dovecot"></a>Test dovecot</h3><p>Open TCP port 993,995 and 587 on iptables. (I force all clients to use SSL/TLS so I keep port 110 and 143 closed.)</p>
+<p>Restart dovecot<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl restart dovecot</span><br></pre></td></tr></table></figure></p>
+<p>Test SSL login to IMAPS on port 993 from a remote PC:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#openssl s_client -connect smtp.mydomain.com:993 -quiet</span><br><span class="line">depth=1 C = US, O = Let&apos;s Encrypt, CN = Let&apos;s Encrypt Authority X1</span><br><span class="line">verify error:num=20:unable to get local issuer certificate</span><br><span class="line">verify return:0</span><br><span class="line">* OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN AUTH=LOGIN AUTH=CRAM-MD5] Dovecot ready.</span><br><span class="line">a1 LOGIN gao@mydomain.com my_password</span><br><span class="line">a1 OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE SORT SORT=DISPLAY THREAD=REFERENCES THREAD=REFS THREAD=ORDEREDSUBJECT MULTIAPPEND URL-PARTIAL CATENATE UNSELECT CHILDREN NAMESPACE UIDPLUS LIST-EXTENDED I18NLEVEL=1 CONDSTORE QRESYNC ESEARCH ESORT SEARCHRES WITHIN CONTEXT=SEARCH LIST-STATUS SPECIAL-USE BINARY MOVE] Logged in</span><br><span class="line">a2 LIST &quot;&quot; &quot;*&quot;</span><br><span class="line">* LIST (\HasNoChildren) &quot;.&quot; INBOX</span><br><span class="line">a2 OK List completed.</span><br><span class="line">a3 EXAMINE INBOX</span><br><span class="line">* FLAGS (\Answered \Flagged \Deleted \Seen \Draft)</span><br><span class="line">* OK [PERMANENTFLAGS ()] Read-only mailbox.</span><br><span class="line">* 4 EXISTS</span><br><span class="line">* 4 RECENT</span><br><span class="line">* OK [UNSEEN 1] First unseen.</span><br><span class="line">* OK [UIDVALIDITY 1457462303] UIDs valid</span><br><span class="line">* OK [UIDNEXT 5] Predicted next UID</span><br><span class="line">a3 OK [READ-ONLY] Examine completed (2.716 secs).</span><br><span class="line">a4 LOGOUT</span><br><span class="line">* BYE Logging out</span><br><span class="line">a4 OK Logout completed.</span><br></pre></td></tr></table></figure></p>
+<h3 id="Mailbox-quota"><a href="#Mailbox-quota" class="headerlink" title="Mailbox quota"></a>Mailbox quota</h3><p>I enable imap_quota plugin:<br>Edit <code>/etc/dovecot/conf.d/10-mail.conf</code>, line 215 should be<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mail_plugins = $mail_plugins quota</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/dovecot/conf.d/20-imap.conf</code>, line 56 should be<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mail_plugins = $mail_plugins imap_quota</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/dovecot/conf.d/90-quota.conf</code>, line 68 should look like these<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">quota = maildir:User quota</span><br></pre></td></tr></table></figure></p>
+<p>Now restart dovecot service</p>
+<p>Edit mailbox quota in PostfixAdmin, set to non-zero, then I can see the quota of INBOX.</p>
+<h2 id="Test-the-email-server"><a href="#Test-the-email-server" class="headerlink" title="Test the email server"></a>Test the email server</h2><p>Now I can create an new email account in Thunderbird to test. </p>
+<p>Always use full email address as login name. Here is the setup with IMAP on port 993:<br><img src="/images/thunderbird_account_setup.png" alt=""></p>
+<p>Now I can send out and receive email so the basic mail server is working.</p>
+<hr>
+<p>Quick links:</p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a></li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MariaDB/" rel="tag">#MariaDB</a>
+          
+            <a href="/tags/SSL/" rel="tag">#SSL</a>
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/MailScanner/" rel="tag">#MailScanner</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 1 - LEMP)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/" rel="prev" title="Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)">
+                Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Postfix"><span class="nav-number">1.</span> <span class="nav-text">Postfix</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Database-for-virtual-domain-and-user"><span class="nav-number">1.1.</span> <span class="nav-text">Database for virtual domain and user</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Postfix-Admin"><span class="nav-number">1.2.</span> <span class="nav-text">Postfix Admin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Postfix-Admin-web-setup"><span class="nav-number">1.3.</span> <span class="nav-text">Postfix Admin web setup</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Link-Postfix-to-MariaDB"><span class="nav-number">1.4.</span> <span class="nav-text">Link Postfix to MariaDB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vmail-user"><span class="nav-number">1.5.</span> <span class="nav-text">vmail user</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-virtual-domain-mailbox"><span class="nav-number">1.6.</span> <span class="nav-text">Test virtual domain/mailbox</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Setup-test-email-account"><span class="nav-number">1.6.1.</span> <span class="nav-text">Setup test email account</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Test-receiving-email"><span class="nav-number">1.6.2.</span> <span class="nav-text">Test receiving email</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Test-send-email-out"><span class="nav-number">1.6.3.</span> <span class="nav-text">Test send email out</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SMTP-Submission"><span class="nav-number">1.7.</span> <span class="nav-text">SMTP Submission</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dovecot"><span class="nav-number">2.</span> <span class="nav-text">Dovecot</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-dovecot"><span class="nav-number">2.1.</span> <span class="nav-text">Install dovecot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dovecot-main-config-file"><span class="nav-number">2.2.</span> <span class="nav-text">dovecot main config file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dovecot-authentication"><span class="nav-number">2.3.</span> <span class="nav-text">Dovecot authentication</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#database-query-configration"><span class="nav-number">2.3.1.</span> <span class="nav-text">database query configration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Make-dovecot-use-MariaDB-for-authentication"><span class="nav-number">2.3.2.</span> <span class="nav-text">Make dovecot use MariaDB for authentication</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Enable-SSL-TLS-support"><span class="nav-number">2.3.3.</span> <span class="nav-text">Enable SSL/TLS support</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Maildir-and-mail-user"><span class="nav-number">2.3.4.</span> <span class="nav-text">Maildir and mail user</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-dovecot"><span class="nav-number">2.4.</span> <span class="nav-text">Test dovecot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mailbox-quota"><span class="nav-number">2.5.</span> <span class="nav-text">Mailbox quota</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Test-the-email-server"><span class="nav-number">3.</span> <span class="nav-text">Test the email server</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

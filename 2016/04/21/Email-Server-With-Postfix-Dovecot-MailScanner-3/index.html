@@ -1,0 +1,755 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="MariaDB,Postfix,Dovecot,MailScanner," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="I use MailScanner to scan emails for viruses, spam, phishing, malware, and other attacks against security vulnerabilities. Under the hood, MailScanner uses ClamAV(clamd) for virus scan, and uses Spama">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="I use MailScanner to scan emails for viruses, spam, phishing, malware, and other attacks against security vulnerabilities. Under the hood, MailScanner uses ClamAV(clamd) for virus scan, and uses Spama">
+<meta property="og:updated_time" content="2016-05-19T16:50:46.677Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)">
+<meta name="twitter:description" content="I use MailScanner to scan emails for viruses, spam, phishing, malware, and other attacks against security vulnerabilities. Under the hood, MailScanner uses ClamAV(clamd) for virus scan, and uses Spama">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-21T09:27:17-07:00" content="2016-04-21">
+              2016-04-21
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>I use <a href="https://www.mailscanner.info" target="_blank" rel="external">MailScanner</a> to scan emails for viruses, spam, phishing, malware, and other attacks against security vulnerabilities. Under the hood, MailScanner uses ClamAV(clamd) for virus scan, and uses Spamassassin to scan for spams.</p>
+<p><a href="http://mailwatch.org/" target="_blank" rel="external">MailWatch</a> is the web UI frontend to manage MailScanner. I can manage qurantine and generate reports easily right in the web browser. </p>
+<a id="more"></a>
+<div class="alert alert--info"><i class="fa fa-lightbulb-o"></i>  MailScanner come with a installation script you may use it for easy setup. It will install all compoenets once you made your selection.<br></div>
+<h2 id="ClamAV"><a href="#ClamAV" class="headerlink" title="ClamAV"></a>ClamAV</h2><p>Clam AV can be load in 3 different mode. Here is the <a href="http://lists.mailscanner.info/pipermail/mailscanner/2007-June/074156.html" target="_blank" rel="external">explaination</a>:</p>
+<blockquote>
+<p><code>clamscan</code>: most expensive CPU-wise, but involves no extra setup. This just executes the clamscan command-line tool. This causes the signature database to be re-read for each object scanned and can be pretty CPU intensive compared to the others.<br><code>clamav module</code>: less expensive than clamscan CPU-wise, but needs the Mail::ClamAV perl module. This method loads a copy of the libclamav scanner library into MailScanner and keeps it resident, using it to perform scans without needing to re-read the signature libraries, etc. It can be somewhat touchy about what versions of Mail::ClamAV work with various versions of clamav.<br><code>clamd</code>: less expensive than clamscan CPU-wise, but needs clamd running and is relatively new code. This causes MailScanner to connect to clamd’s socket and use that for scanning. Since clamd is already resident, there’s no need to re-read signatures. Since it’s using clamd, which comes with clamav, there’s no real version-compatibility problems like with the module, at least in theory</p>
+</blockquote>
+<p>So I decide to run ClamAV as a daemon (clamd) for better performance.</p>
+<h3 id="ClamAVInstallation"><a href="#ClamAVInstallation" class="headerlink" title="ClamAVInstallation"></a>ClamAVInstallation</h3><p>Install ClamAV:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install clamav-server clamav-data clamav-update clamav-filesystem clamav clamav-scanner-systemd clamav-devel clamav-lib clamav-server-systemd</span><br></pre></td></tr></table></figure></p>
+<p>ClamAV will need <em>unrar</em>, it can be installed from <em>rpmforge</em> repository, so:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src/</span><br><span class="line">wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm</span><br><span class="line">rpm -ivh rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm </span><br><span class="line">yum install unrar</span><br></pre></td></tr></table></figure></p>
+<p>After install <em>unrar</em>, I disabled <em>rpmforge</em> repo:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sed -i &apos;s/enabled = 1/enabled = 0/g&apos; /etc/yum.repos.d/rpmforge.repo</span><br></pre></td></tr></table></figure></p>
+<h3 id="freshclam"><a href="#freshclam" class="headerlink" title="freshclam"></a>freshclam</h3><p><code>freshclam</code> will update the virus signature database. To enable it and update:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sed -i -e &apos;s/^Example/#Example/&apos; /etc/freshclam.conf</span><br><span class="line">freshclam -v</span><br></pre></td></tr></table></figure></p>
+<p>Also edit <code>/etc/sysconfig/freshclam</code>, comment out this line as:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#FRESHCLAM_DELAY=disabled-warn	# REMOVE ME</span><br></pre></td></tr></table></figure></p>
+<p>The MailScanner will call <code>/usr/local/bin/freshclam</code> to update the database, so make the proper link:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -s /usr/bin/freshclam /usr/local/bin/freshclam</span><br></pre></td></tr></table></figure></p>
+<h3 id="clamd-daemon"><a href="#clamd-daemon" class="headerlink" title="clamd daemon"></a>clamd daemon</h3><p>Enable <em>clamd</em> by editing <code>/etc/clamd.d/scan.conf</code> like this:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Example</span><br><span class="line">LogFile /var/log/clamd.scan</span><br><span class="line">LogTime yes</span><br><span class="line">LogSyslog yes</span><br><span class="line">LogFacility LOG_MAIL</span><br><span class="line">PidFile /var/run/clamd.scan/clamd.pid</span><br><span class="line">LocalSocket /var/run/clamd.scan/clamd.sock</span><br></pre></td></tr></table></figure></p>
+<p>Create the log file:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">touch /var/log/clamd.scan</span><br><span class="line">chown :clamscan $_</span><br><span class="line">chmod 0660 $_</span><br></pre></td></tr></table></figure></p>
+<p>Now enable and start the service:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl  enable clamd@scan</span><br><span class="line">systemctl  start clamd@scan</span><br><span class="line">systemctl  status clamd@scan</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test-clamd-service"><a href="#Test-clamd-service" class="headerlink" title="Test clamd service"></a>Test clamd service</h3><p>I download a virus file (Eicar Test) and send to ClamAV<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># cd /tmp</span><br><span class="line"># wget http://www.eicar.org/download/eicar.com </span><br><span class="line"># clamscan --infected --remove eicar.com</span><br><span class="line">eicar.com: Eicar-Test-Signature FOUND</span><br><span class="line">eicar.com: Removed.</span><br><span class="line"> </span><br><span class="line">----------- SCAN SUMMARY -----------</span><br><span class="line">Known viruses: 4283601</span><br><span class="line">Engine version: 0.98.7</span><br><span class="line">Scanned directories: 0</span><br><span class="line">Scanned files: 1</span><br><span class="line">Infected files: 1</span><br><span class="line">Data scanned: 0.00 MB</span><br><span class="line">Data read: 0.00 MB (ratio 0.00:1)</span><br><span class="line">Time: 21.513 sec (0 m 21 s)</span><br></pre></td></tr></table></figure></p>
+<h2 id="Spamassassin"><a href="#Spamassassin" class="headerlink" title="Spamassassin"></a>Spamassassin</h2><p>Install Spamassassin”<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install spamassassin</span><br></pre></td></tr></table></figure></p>
+<p>Update database:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sa-update</span><br></pre></td></tr></table></figure></p>
+<p>Enable snd start Spamassassin:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl enable spamassassin</span><br><span class="line">systemctl start spamassassin</span><br><span class="line">systemctl status spamassassin</span><br></pre></td></tr></table></figure></p>
+<h2 id="MailScanner"><a href="#MailScanner" class="headerlink" title="MailScanner"></a>MailScanner</h2><p>MailScanner work like this:</p>
+<ol>
+<li>As instructed, Postfix holds the mail upon receipt.</li>
+<li>MailScanner swoops in and scans the email in queue.</li>
+<li>MailScanner re queues the email and hands it over back to Postfix.</li>
+<li>Postfix processes the email as necessary and delivers the mail to recipient.</li>
+</ol>
+<h3 id="Install-MailScanner"><a href="#Install-MailScanner" class="headerlink" title="Install MailScanner"></a>Install MailScanner</h3><p>First stop and disable postfix. We will use MailScanner in the future.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl stop postfix</span><br><span class="line">systemctl disable postfix</span><br></pre></td></tr></table></figure></p>
+<p>Download MailScanner and install:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src/</span><br><span class="line">wget https://s3.amazonaws.com/mailscanner/release/v4/rpm/MailScanner-4.85.2-3.rpm.tar.gz</span><br><span class="line">tar zvxf MailScanner-4.85.2-3.rpm.tar.gz </span><br><span class="line">cd MailScanner-4.85.2-3</span><br><span class="line">./install.sh</span><br></pre></td></tr></table></figure></p>
+<p>Start the installation. Answer Y to all questions <strong><em>except</em></strong> these three(they have been took care in the previous steps):</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Do you want to install a Mail Transfer Agent (MTA)?</span><br><span class="line"></span><br><span class="line">I can install an MTA via the Yum package manager to save you the trouble of having to do</span><br><span class="line">this later. If you plan on using an MTA that is not listed below, you will have install </span><br><span class="line">it manually yourself if you have not already done so.</span><br><span class="line"></span><br><span class="line">1 - sendmail</span><br><span class="line">2 - postfix</span><br><span class="line">3 - exim</span><br><span class="line">N - Do not install</span><br><span class="line"></span><br><span class="line">Recommended: 1 (sendmail)</span><br><span class="line"></span><br><span class="line">Install an MTA? [1] : N</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Do you want to install or update Spamassassin?</span><br><span class="line"></span><br><span class="line">This package is recommended unless you have your own spam detection solution.</span><br><span class="line"></span><br><span class="line">Recommended: Y (yes)</span><br><span class="line"></span><br><span class="line">Install or update Spamassassin? [n/Y] : N</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Do you want to install or update Clam AV during this installation process?</span><br><span class="line"></span><br><span class="line">This package is recommended unless you plan on using a different virus scanner.</span><br><span class="line">Note that you may use more than one virus scanner at once with MailScanner.</span><br><span class="line"></span><br><span class="line">Even if you already have Clam AV installed you should select this option so I</span><br><span class="line">will know to check the clamav-wrapper and make corrections if required.</span><br><span class="line"></span><br><span class="line">Recommended: Y (yes)</span><br><span class="line"></span><br><span class="line">Install or update Clam AV? [n/Y] : N</span><br></pre></td></tr></table></figure>
+<h3 id="MailScanner-Configuration"><a href="#MailScanner-Configuration" class="headerlink" title="MailScanner Configuration"></a>MailScanner Configuration</h3><p>Edit <code>/etc/MailScanner/MailScanner.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">%org-name% = mydomain</span><br><span class="line">%org-long-name% = mydomain Ltd.</span><br><span class="line">%web-site% = www.mydomain.com</span><br><span class="line">Incoming Work Group = clamscan</span><br><span class="line">Incoming Work Permissions = 0640</span><br><span class="line">Virus Scanners = clamd</span><br><span class="line">Clamd Socket = /var/run/clamd.scan/clamd.sock</span><br><span class="line">Clamd Use Threads = yes</span><br><span class="line">MTA = postfix</span><br><span class="line">Run As User = postfix</span><br><span class="line">Run As Group = postfix</span><br><span class="line">Incoming Queue Dir = /var/spool/postfix/hold</span><br><span class="line">Outgoing Queue Dir = /var/spool/postfix/incoming</span><br><span class="line">Use SpamAssassin = yes</span><br><span class="line">SpamAssassin User State Dir = /var/spool/MailScanner/spamassassin</span><br><span class="line"></span><br><span class="line">SpamScore Number Instead Of Stars = yes</span><br><span class="line">Always Include SpamAssassin Report = yes</span><br><span class="line">Log Spam = yes</span><br></pre></td></tr></table></figure></p>
+<p>Correct a permission to allow write for group <em>clamscan</em>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chmod -R 770 /var/spool/MailScanner/incoming/</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/MailScanner/spam.assassin.prefs.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">envelope_sender_header X-mydomain-MailScanner-From</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/MailScanner/virus.scanners.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">clamd           /bin/false                           /usr</span><br></pre></td></tr></table></figure></p>
+<h3 id="clamd-permission"><a href="#clamd-permission" class="headerlink" title="clamd permission"></a>clamd permission</h3><p>When clamd scan emails, I want pass <code>--fdpass</code> to it, so it won’t have permssion issue:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mv /usr/bin/clamdscan /usr/bin/clamdscan-cmd</span><br></pre></td></tr></table></figure></p>
+<p>Now create a new file <code>/usr/bin/clamdscan</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">/usr/bin/clamdscan-cmd --fdpass $@</span><br></pre></td></tr></table></figure></p>
+<p>Make it executable:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chmod +x /usr/bin/clamdscan</span><br></pre></td></tr></table></figure></p>
+<h3 id="Postfix-hold-queue"><a href="#Postfix-hold-queue" class="headerlink" title="Postfix hold queue"></a>Postfix hold queue</h3><p>Let postfix hold all mails for scan, add line at bottom of <code>/etc/postfix/header_checks</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/^Received:/  HOLD</span><br></pre></td></tr></table></figure></p>
+<p>Enable header check in Postfix, edit <code>/etc/postfix/main.cf</code>, uncomment this line 548:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">header_checks = regexp:/etc/postfix/header_checks</span><br></pre></td></tr></table></figure></p>
+<p>Check MailScanner configration to see if there is any error:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">MailScanner --lint</span><br></pre></td></tr></table></figure></p>
+<h3 id="Spamassassin-Plugins"><a href="#Spamassassin-Plugins" class="headerlink" title="Spamassassin Plugins"></a>Spamassassin Plugins</h3><p>With plugins, Spamassassin can detect spam and bulk email better with online resources.  </p>
+<p>First, I need open some ports on iptables needed by DCC, pyzor and razor. Add these rules to <code>/etc/sysconfig/iptables</code> in the <strong>INPUT</strong> chain and reload <code>iptables</code>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### razor DCC pyzor ###</span><br><span class="line">-A INPUT -p tcp --dport 2703 -j ACCEPT</span><br><span class="line">-A INPUT -p udp --dport 24441 -j ACCEPT</span><br><span class="line">-A INPUT -p udp -m udp --dport 1024:65535 --sport 6277 -j ACCEPT</span><br><span class="line">###End of razor DCC pyzor ###</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/mail/spamassassin/mailscanner.cf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># paths to utilities</span><br><span class="line">ifplugin Mail::SpamAssassin::Plugin::Pyzor</span><br><span class="line">pyzor_path /usr/bin/pyzor</span><br><span class="line">endif</span><br><span class="line"></span><br><span class="line">ifplugin Mail::SpamAssassin::Plugin::DCC</span><br><span class="line">dcc_path /usr/bin/dccproc</span><br><span class="line">dcc_home /etc/dcc</span><br><span class="line">endif</span><br><span class="line"></span><br><span class="line">ifplugin Mail::SpamAssassin::Plugin::Razor2</span><br><span class="line">razor_config  /etc/mail/spamassassin/razor/razor-agent.conf</span><br><span class="line">endif</span><br></pre></td></tr></table></figure></p>
+<p>Enable these in spamassassin. Edit <code>/etc/mail/spamassassin/v310.pre</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">loadplugin Mail::SpamAssassin::Plugin::DCC</span><br><span class="line">loadplugin Mail::SpamAssassin::Plugin::Pyzor</span><br><span class="line">loadplugin Mail::SpamAssassin::Plugin::Razor2</span><br></pre></td></tr></table></figure></p>
+<h4 id="DCC"><a href="#DCC" class="headerlink" title="DCC"></a>DCC</h4><p>Install DCC<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum install sendmail-milter</span><br><span class="line">rpm -Uvh  https://www.mirrorservice.org/sites/dl.atrpms.net/el7-x86_64/atrpms/stable/DCC-1.3.145-25.el7.x86_64.rpm</span><br></pre></td></tr></table></figure></p>
+<p>Test<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cdcc info</span><br></pre></td></tr></table></figure></p>
+<h4 id="Pyzor"><a href="#Pyzor" class="headerlink" title="Pyzor"></a>Pyzor</h4><p>Add a line in <code>/etc/mail/spamassassin/local.cf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pyzor_options --homedir /etc/mail/spamassassin/.pyzor</span><br></pre></td></tr></table></figure></p>
+<p>Install Pyzor:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rpm -Uvh ftp://mirror.switch.ch/pool/4/mirror/fedora/linux/releases/22/Everything/x86_64/os/Packages/p/pyzor-0.5.0-10.fc21.noarch.rpm</span><br><span class="line">pyzor --homedir /etc/mail/spamassassin discover</span><br></pre></td></tr></table></figure></p>
+<p>Test<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spamassassin -t -D pyzor &lt; /usr/share/doc/spamassassin-3.4.0/sample-spam.txt</span><br></pre></td></tr></table></figure></p>
+<h4 id="Razor"><a href="#Razor" class="headerlink" title="Razor"></a>Razor</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir  /etc/mail/spamassassin/razor</span><br><span class="line">razor-admin -create -home=/etc/mail/spamassassin/razor</span><br><span class="line">razor-admin -register</span><br></pre></td></tr></table></figure>
+<p>Edit <code>/etc/mail/spamassassin/razor/razor-agent.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">razorhome	       = /etc/mail/spamassassin/razor</span><br></pre></td></tr></table></figure></p>
+<p>Test Razor2<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spamassassin -t -D razor2 &lt; /usr/share/doc/spamassassin-3.4.0/sample-spam.txt</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h3><p>Check MailScanner configration again:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">MailScanner --lint</span><br></pre></td></tr></table></figure></p>
+<p>Also check for SpamAssassin:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spamassassin -D --lint</span><br></pre></td></tr></table></figure></p>
+<p>Now restart services and check maillog to see if any error<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl restart clamd@scan</span><br><span class="line">systemctl restart spamassassin</span><br><span class="line">systemctl restart MailScanner</span><br></pre></td></tr></table></figure></p>
+<p>Now I can send some spam test email then check the maillog to see if it has need catched. Here are some test site:<br>[<a href="http://www.emailsecuritycheck.net/" target="_blank" rel="external">http://www.emailsecuritycheck.net/</a>]<br>[<a href="https://www.mail-tester.com/" target="_blank" rel="external">https://www.mail-tester.com/</a>]</p>
+<h2 id="MailWatch"><a href="#MailWatch" class="headerlink" title="MailWatch"></a>MailWatch</h2><h3 id="Download-code"><a href="#Download-code" class="headerlink" title="Download code"></a>Download code</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src</span><br><span class="line">git clone https://github.com/mailwatch/1.2.0.git</span><br></pre></td></tr></table></figure>
+<h3 id="MariaDB-database"><a href="#MariaDB-database" class="headerlink" title="MariaDB database"></a>MariaDB database</h3><p>Create a database with downloaded sql file:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src/1.2.0</span><br><span class="line">mysql -uroot -p &lt; create.sql</span><br></pre></td></tr></table></figure>
+<p>Create a DB user:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># mysql -uroot -p</span><br><span class="line">Enter password:</span><br><span class="line"></span><br><span class="line">MariaDB [(none)]&gt; GRANT ALL ON mailscanner.* TO mailwatch@localhost IDENTIFIED BY &apos;MWpassword&apos;;</span><br><span class="line">Query OK, 0 rows affected (1.27 sec)</span><br><span class="line"></span><br><span class="line">MariaDB [(none)]&gt; GRANT FILE ON *.* TO mailwatch@localhost IDENTIFIED BY &apos;MWpassword&apos;;</span><br><span class="line">Query OK, 0 rows affected (0.00 sec)</span><br><span class="line"></span><br><span class="line">MariaDB [(none)]&gt; FLUSH PRIVILEGES;</span><br><span class="line">Query OK, 0 rows affected (0.05 sec)</span><br></pre></td></tr></table></figure></p>
+<h3 id="Admin-user"><a href="#Admin-user" class="headerlink" title="Admin user"></a>Admin user</h3><p>Create an Admin user <em>gao</em>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># mysql mailscanner -umailwatch -pMWpassword</span><br><span class="line"></span><br><span class="line">MariaDB [mailscanner]&gt; INSERT INTO users SET username = &apos;gao&apos;, password = md5(&apos;mwpassword&apos;), fullname = &apos;Gao&apos;, type = &apos;A&apos;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Configure-MailWatch"><a href="#Configure-MailWatch" class="headerlink" title="Configure MailWatch"></a>Configure MailWatch</h3><p>Move the mailscanner directory to the web server’s root<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp -r /usr/local/src/1.2.0/mailscanner /var/www/html/.</span><br><span class="line">chown -R nginx:nginx /var/www/html/mailscanner/</span><br></pre></td></tr></table></figure></p>
+<p>Copy <code>/var/www/html/mailscanner/conf.php.example</code> to <code>conf.php</code> then edit the database setting:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">define(&apos;DB_TYPE&apos;, &apos;mysql&apos;);</span><br><span class="line">define(&apos;DB_USER&apos;, &apos;mailwatch&apos;);</span><br><span class="line">define(&apos;DB_PASS&apos;, &apos;MWpassword&apos;);</span><br><span class="line">define(&apos;DB_HOST&apos;, &apos;localhost&apos;);</span><br><span class="line">define(&apos;DB_NAME&apos;, &apos;mailscanner&apos;);</span><br><span class="line">define(&apos;DB_DSN&apos;,  DB_TYPE.&apos;://&apos;.DB_USER.&quot;:&quot;.DB_PASS.&quot;@&quot;.DB_HOST.&quot;/&quot;.DB_NAME);</span><br><span class="line"></span><br><span class="line">define(&apos;TIME_ZONE&apos;, &apos;America/Vancouver&apos;);</span><br><span class="line">// Log file location</span><br><span class="line">define(&apos;MS_LOG&apos;, &apos;/var/log/maillog&apos;);</span><br><span class="line">define(&apos;MAIL_LOG&apos;, &apos;/var/log/maillog&apos;);</span><br><span class="line">// Date/Time settings</span><br><span class="line">define(&apos;DATE_FORMAT&apos;, &apos;%y-%m-%d&apos;);</span><br><span class="line">define(&apos;TIME_FORMAT&apos;, &apos;%H:%i:%s&apos;);</span><br></pre></td></tr></table></figure>
+<p>Now stop MailScanner<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl stop MailScanner</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/etc/MailScanner/MailScanner.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Always Looked Up Last = &amp;MailWatchLogging</span><br><span class="line">Detailed Spam Report = yes</span><br><span class="line">Quarantine Whole Message = yes</span><br><span class="line">Quarantine Whole Messages As Queue Files = no</span><br><span class="line">Include Scores In SpamAssassin Report = yes</span><br><span class="line">Quarantine User = root</span><br><span class="line">Quarantine Group = nginx</span><br><span class="line">Quarantine Permissions = 0660</span><br><span class="line">Is Definitely Not Spam = &amp;SQLWhitelist</span><br><span class="line">Is Definitely Spam = &amp;SQLBlacklist</span><br></pre></td></tr></table></figure></p>
+<p>Copy Perl module to <em>CustomFunctions</em><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp /usr/local/src/1.2.0/MailScanner_perl_scripts/SQLBlackWhiteList.pm /usr/share/MailScanner/MailScanner/CustomFunctions/</span><br><span class="line">cp /usr/local/src/1.2.0/MailScanner_perl_scripts/MailWatch.pm /usr/share/MailScanner/MailScanner/CustomFunctions/.</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/usr/share/MailScanner/MailScanner/CustomFunctions/SQLBlackWhiteList.pm</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sub CreateList &#123;</span><br><span class="line">  my($type, $BlackWhite) = @_;</span><br><span class="line">  my($dbh, $sth, $sql, $to_address, $from_address, $count, $filter);</span><br><span class="line">  my($db_name) = &apos;mailscanner&apos;;</span><br><span class="line">  my($db_host) = &apos;localhost&apos;;</span><br><span class="line">  my($db_user) = &apos;mailwatch&apos;;</span><br><span class="line">  my($db_pass) = &apos;MWpassword&apos;;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>Edit <code>/usr/share/MailScanner/MailScanner/CustomFunctions/MailWatch.pm</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Modify this as necessary for your configuration</span><br><span class="line">my($db_name) = &apos;mailscanner&apos;;</span><br><span class="line">my($db_host) = &apos;localhost&apos;;</span><br><span class="line">my($db_user) = &apos;mailwatch&apos;;</span><br><span class="line">my($db_pass) = &apos;MWpassword&apos;;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>I also  installed a perl module <code>Encoding::FixLatin</code> in CPAN:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># cpan</span><br><span class="line"></span><br><span class="line">cpan[1]&gt; install Encoding::FixLatin</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>Start MailScanner again, check <code>/var/log/maillog</code> for any error.</p>
+<h3 id="Nginx-configuration"><a href="#Nginx-configuration" class="headerlink" title="Nginx configuration"></a>Nginx configuration</h3><p>Create a new nginx virtual host configration file <code>/etc/nginx/conf.d/mailwatch.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">  listen 80;</span><br><span class="line">  server_name mailwatch.mydomain.com;</span><br><span class="line">  return 301 https://$server_name$request_uri; # enforce https</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">   listen          443 ssl;</span><br><span class="line">   server_name     mailwatch.mydomain.com;</span><br><span class="line">   root            /var/www/html/mailscanner;</span><br><span class="line">   index           index.php;</span><br><span class="line">   charset         utf-8;</span><br><span class="line"></span><br><span class="line">   ## SSL settings</span><br><span class="line">   ssl_certificate           /etc/letsencrypt/live/mydomain.com/fullchain.pem;</span><br><span class="line">   ssl_certificate_key           /etc/letsencrypt/live/mydomain.com/privkey.pem;</span><br><span class="line">   ssl_protocols             TLSv1.2 TLSv1.1 TLSv1;</span><br><span class="line">   ssl_prefer_server_ciphers on;</span><br><span class="line">   ssl_ciphers &quot;EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4&quot;;</span><br><span class="line">   ssl_dhparam		     /etc/nginx/dhparams.pem;	</span><br><span class="line">   ssl_session_cache         shared:SSL:10m;</span><br><span class="line">   ssl_session_timeout       10m;</span><br><span class="line">   ssl_ecdh_curve            secp521r1;</span><br><span class="line"></span><br><span class="line">   add_header Strict-Transport-Security max-age=31536000;</span><br><span class="line">   # add_header X-Frame-Options DENY;</span><br><span class="line"></span><br><span class="line">   # auth_basic &quot;Restricted area&quot;;</span><br><span class="line">   # auth_basic_user_file /etc/nginx/passwd;</span><br><span class="line"></span><br><span class="line">   location / &#123;</span><br><span class="line">      try_files $uri $uri/ index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   location ~ \.php$ &#123;</span><br><span class="line">        try_files $uri =404;</span><br><span class="line">        fastcgi_split_path_info ^(.+\.php)(/.+)$;</span><br><span class="line">        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">        include       fastcgi_params;</span><br><span class="line">        fastcgi_pass  unix:/run/php-fpm/php-fpm.sock;</span><br><span class="line">        fastcgi_index index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Mail-queue"><a href="#Mail-queue" class="headerlink" title="Mail queue"></a>Mail queue</h3><p>Configure mail queue directory:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chown -R postfix:nginx /var/spool/postfix/hold</span><br><span class="line">chown -R postfix:nginx /var/spool/postfix/incoming</span><br><span class="line">chmod -R 770 /var/spool/postfix/hold</span><br><span class="line">chmod -R 770 /var/spool/postfix/incoming/</span><br></pre></td></tr></table></figure></p>
+<h3 id="Test-1"><a href="#Test-1" class="headerlink" title="Test"></a>Test</h3><p>Restart Nginx:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl restart nginx</span><br></pre></td></tr></table></figure></p>
+<p>Now it’s time to go to <a href="https://mailwatch.mydomain.com/" target="_blank" rel="external">https://mailwatch.mydomain.com/</a><br>Login as admin user “gao” with password “mwpassword”</p>
+<p>Go to <a href="http://www.emailsecuritycheck.net/" target="_blank" rel="external">http://www.emailsecuritycheck.net/</a> and send myself some spam and virus, check MailWatch to see the result.</p>
+<div class="alert alert-warning"><i class="fa fa-bell"></i>  There are few tools came with MailWatch souce code in the "tools" directory. You may need to setup them following the instruction.</div>
+<h2 id="SpamAssassin-Bayes"><a href="#SpamAssassin-Bayes" class="headerlink" title="SpamAssassin Bayes"></a>SpamAssassin Bayes</h2><p>SpamAssassin Bayes can try to identify spam (or ham) by learning tokens. Here I configrue it with MailWatch installed.</p>
+<p>Edit <code>/etc/MailScanner/spam.assassin.prefs.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bayes_path /etc/MailScanner/bayes/bayes</span><br><span class="line">bayes_file_mode 0660</span><br><span class="line"></span><br><span class="line">bayes_ignore_header X-mydomain-COM-MailScanner</span><br><span class="line">bayes_ignore_header X-mydomain-COM-MailScanner-SpamCheck</span><br><span class="line">bayes_ignore_header X-mydomain-COM-MailScanner-SpamScore</span><br><span class="line">bayes_ignore_header X-mydomain-COM-MailScanner-Information</span><br></pre></td></tr></table></figure></p>
+<p>Create the ‘new’ bayes directory, make the directory owned by the same group as the web server user and make the directory setgid:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir /etc/MailScanner/bayes</span><br><span class="line">chown root:nginx /etc/MailScanner/bayes</span><br><span class="line">chmod g+rws /etc/MailScanner/bayes</span><br></pre></td></tr></table></figure></p>
+<p>Since I already some spam mails in quarantine, so I force a <code>sa-learn</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sa-learn --spam /var/spool/MailScanner/quarantine/20160420</span><br></pre></td></tr></table></figure></p>
+<p>After this I see few files have been generated in bayes home directory:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># ll /etc/MailScanner/bayes/</span><br><span class="line">total 28</span><br><span class="line">-rw-rw---- 1 root nginx    50 Mar 11 21:18 bayes.mutex</span><br><span class="line">-rw-rw---- 1 root nginx 12288 Mar 11 21:18 bayes_seen</span><br><span class="line">-rw-rw---- 1 root nginx 12288 Mar 11 21:18 bayes_toks</span><br></pre></td></tr></table></figure></p>
+<p>Test to see bayes work<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spamassassin -D -p /etc/MailScanner/spam.assassin.prefs.conf --lint</span><br></pre></td></tr></table></figure></p>
+<p>shoud see these lines:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Mar 11 21:20:27.020 [6494] dbg: bayes: tie-ing to DB file R/O /etc/MailScanner/bayes/bayes_toks</span><br><span class="line">Mar 11 21:20:27.022 [6494] dbg: bayes: tie-ing to DB file R/O /etc/MailScanner/bayes/bayes_seen</span><br><span class="line">Mar 11 21:20:27.024 [6494] dbg: bayes: found bayes db version 3</span><br><span class="line">Mar 11 21:20:27.025 [6494] dbg: bayes: DB journal sync: last sync: 0</span><br><span class="line">Mar 11 21:20:27.026 [6494] dbg: bayes: not available for scanning, only 2 spam(s) in bayes DB &lt; 200</span><br><span class="line">Mar 11 21:20:27.026 [6494] dbg: bayes: untie-ing</span><br></pre></td></tr></table></figure></p>
+<p>It can also be verified in MailWatch in “Tools/Link” –&gt; “Spamassassin Bayes Database Info”</p>
+<p>Now restart Spamassassin and MailScanner and check maillog.</p>
+<div class="alert alert-warning"><i class="fa fa-bell"></i>  Now I have an email server with protections. Unforturnatly this is just a start. There are so many things need further configuration to improve the security of the mail system.   </div>
+<hr>
+<p>Quick links:</p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a></li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MariaDB/" rel="tag">#MariaDB</a>
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/MailScanner/" rel="tag">#MailScanner</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 2 - Postfix and Dovecot)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/" rel="prev" title="Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)">
+                Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ClamAV"><span class="nav-number">1.</span> <span class="nav-text">ClamAV</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ClamAVInstallation"><span class="nav-number">1.1.</span> <span class="nav-text">ClamAVInstallation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#freshclam"><span class="nav-number">1.2.</span> <span class="nav-text">freshclam</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clamd-daemon"><span class="nav-number">1.3.</span> <span class="nav-text">clamd daemon</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-clamd-service"><span class="nav-number">1.4.</span> <span class="nav-text">Test clamd service</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spamassassin"><span class="nav-number">2.</span> <span class="nav-text">Spamassassin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MailScanner"><span class="nav-number">3.</span> <span class="nav-text">MailScanner</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-MailScanner"><span class="nav-number">3.1.</span> <span class="nav-text">Install MailScanner</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MailScanner-Configuration"><span class="nav-number">3.2.</span> <span class="nav-text">MailScanner Configuration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#clamd-permission"><span class="nav-number">3.3.</span> <span class="nav-text">clamd permission</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Postfix-hold-queue"><span class="nav-number">3.4.</span> <span class="nav-text">Postfix hold queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spamassassin-Plugins"><span class="nav-number">3.5.</span> <span class="nav-text">Spamassassin Plugins</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DCC"><span class="nav-number">3.5.1.</span> <span class="nav-text">DCC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pyzor"><span class="nav-number">3.5.2.</span> <span class="nav-text">Pyzor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Razor"><span class="nav-number">3.5.3.</span> <span class="nav-text">Razor</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test"><span class="nav-number">3.6.</span> <span class="nav-text">Test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MailWatch"><span class="nav-number">4.</span> <span class="nav-text">MailWatch</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Download-code"><span class="nav-number">4.1.</span> <span class="nav-text">Download code</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MariaDB-database"><span class="nav-number">4.2.</span> <span class="nav-text">MariaDB database</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Admin-user"><span class="nav-number">4.3.</span> <span class="nav-text">Admin user</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Configure-MailWatch"><span class="nav-number">4.4.</span> <span class="nav-text">Configure MailWatch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx-configuration"><span class="nav-number">4.5.</span> <span class="nav-text">Nginx configuration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mail-queue"><span class="nav-number">4.6.</span> <span class="nav-text">Mail queue</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-1"><span class="nav-number">4.7.</span> <span class="nav-text">Test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpamAssassin-Bayes"><span class="nav-number">5.</span> <span class="nav-text">SpamAssassin Bayes</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 3 - MailScanner and MailWatch)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

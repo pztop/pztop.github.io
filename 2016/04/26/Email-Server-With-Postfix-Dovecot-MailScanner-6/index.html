@@ -1,0 +1,671 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Postfix,Dovecot,MailScanner,Roundcube," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="So I have my mail server up and running and that a good news. The bad news is that the server need lots more to do, some even will become nerver-ending processes.I cannot cover every single details he">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="So I have my mail server up and running and that a good news. The bad news is that the server need lots more to do, some even will become nerver-ending processes.I cannot cover every single details he">
+<meta property="og:updated_time" content="2016-04-26T18:46:41.738Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)">
+<meta name="twitter:description" content="So I have my mail server up and running and that a good news. The bad news is that the server need lots more to do, some even will become nerver-ending processes.I cannot cover every single details he">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-26T10:07:28-07:00" content="2016-04-26">
+              2016-04-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>So I have my mail server up and running and that a good news. The bad news is that the server need lots more to do, some even will become nerver-ending processes.<br>I cannot cover every single details here because every system has its unique setup and requirement. But here I list few things you may keep an eye on them.<br><a id="more"></a></p>
+<h2 id="Keep-the-IP-out-of-blacklist"><a href="#Keep-the-IP-out-of-blacklist" class="headerlink" title="Keep the IP out of blacklist"></a>Keep the IP out of blacklist</h2><p>The public IP of the email server has to be a clean IP. If not, you mail will be rejected by the receiving mail server. To check your IP, go to: <a href="http://mxtoolbox.com/blacklists.aspx" target="_blank" rel="external">http://mxtoolbox.com/blacklists.aspx</a></p>
+<h2 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h2><p>As soon as you put your server online, you will see lots hacking activities for sure. Some try to gain access to your system, some try to relay spam email through your mail server.<br>Although I have Fail2ban installed, It’s still need a lot attention to keep these hacking activities out.   </p>
+<h2 id="Backup-MX-server"><a href="#Backup-MX-server" class="headerlink" title="Backup MX server"></a>Backup MX server</h2><p>Most people opt to build one or more MX backup server. So when your main server is offline, the backup MX server will catch all imconing emails. Once the main server back online the backup MX server will relay all queued mails to the main server so you don’t lose emails.</p>
+<h2 id="Backup-and-resovery"><a href="#Backup-and-resovery" class="headerlink" title="Backup and resovery"></a>Backup and resovery</h2><p>I did not cover details about backup and recovery. As a system adminstrator this is a basic task and you have to have an emergency plan for your system and data.</p>
+<h2 id="Audit-and-monitoring"><a href="#Audit-and-monitoring" class="headerlink" title="Audit and monitoring"></a>Audit and monitoring</h2><p>You should monitor the system actively. Read the log files, check the system. Here MailWatch will help a lot. But you may still want to setup a monitor system, such as Nagios, Zabbix or similar. </p>
+<h2 id="Non-forwarding-caching-nameserver"><a href="#Non-forwarding-caching-nameserver" class="headerlink" title="Non-forwarding caching nameserver"></a>Non-forwarding caching nameserver</h2><p>You may see Spamassassin score a lot on “URIBL_BLOCKED” which may cause wrongful blocks of normal emails. The solution is use a non-forwarding caching nameserver.<br>See <a href="http://wiki.apache.org/spamassassin/DnsBlocklists\#dnsbl-block" target="_blank" rel="external">http://wiki.apache.org/spamassassin/DnsBlocklists\#dnsbl-block</a> for more information.</p>
+<h2 id="Update-system"><a href="#Update-system" class="headerlink" title="Update system"></a>Update system</h2><p>When I built my first email server (Postfix, Courier and MailScanner) I have lots packages compiled and installed manually. This gave me a lots headaches later when I tried to update them. I had to re-compile or patch them carefully and sadlly sometimes things went wrong.<br>Now on the new system, I used YUM to install almost all of the packages. This will let me easy to update the system. </p>
+<h2 id="Fine-tune-the-system"><a href="#Fine-tune-the-system" class="headerlink" title="Fine-tune the system"></a>Fine-tune the system</h2><p>Another never-ending task is fine-tune the system. Like I said before, email server is complicate. For example, by default MailScanner blockes double extention attachment files(e.g. mydoc.bat.doc). But for my company we do have some legit files which have doubel extension. This need to adjust MailScanner’s configration file to let these files pass the spam check.</p>
+<hr>
+<p>Quick links:</p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a></li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/MailScanner/" rel="tag">#MailScanner</a>
+          
+            <a href="/tags/Roundcube/" rel="tag">#Roundcube</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/25/Namesilo-with-DDNS/" rel="next" title="Namesilo with DDNS">
+                <i class="fa fa-chevron-left"></i> Namesilo with DDNS
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/28/Install-Google-Earth-on-Ubuntu-16-04/" rel="prev" title="Install Google Earth on Ubuntu 16.04">
+                Install Google Earth on Ubuntu 16.04 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Keep-the-IP-out-of-blacklist"><span class="nav-number">1.</span> <span class="nav-text">Keep the IP out of blacklist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Firewall"><span class="nav-number">2.</span> <span class="nav-text">Firewall</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Backup-MX-server"><span class="nav-number">3.</span> <span class="nav-text">Backup MX server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Backup-and-resovery"><span class="nav-number">4.</span> <span class="nav-text">Backup and resovery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Audit-and-monitoring"><span class="nav-number">5.</span> <span class="nav-text">Audit and monitoring</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Non-forwarding-caching-nameserver"><span class="nav-number">6.</span> <span class="nav-text">Non-forwarding caching nameserver</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Update-system"><span class="nav-number">7.</span> <span class="nav-text">Update system</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fine-tune-the-system"><span class="nav-number">8.</span> <span class="nav-text">Fine-tune the system</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 6 - Afterthoughts)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

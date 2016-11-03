@@ -1,0 +1,698 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Postfix,Dovecot,Roundcube," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Roundcube is a free opensource web-based IMAP email client. It provides full functionality you expect from an email client, including MIME support, address book, folder manipulation, message searching">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)">
+<meta property="og:url" content="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="Roundcube is a free opensource web-based IMAP email client. It provides full functionality you expect from an email client, including MIME support, address book, folder manipulation, message searching">
+<meta property="og:updated_time" content="2016-04-26T18:48:19.942Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)">
+<meta name="twitter:description" content="Roundcube is a free opensource web-based IMAP email client. It provides full functionality you expect from an email client, including MIME support, address book, folder manipulation, message searching">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail) | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-04-25T10:12:53-07:00" content="2016-04-25">
+              2016-04-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="https://roundcube.net/" target="_blank" rel="external">Roundcube</a> is a free opensource web-based IMAP email client. It provides full functionality you expect from an email client, including MIME support, address book, folder manipulation, message searching and spell checking. At the time of this writing, Roundcube just released v1.1.5.<br><a id="more"></a></p>
+<h2 id="Download-souce-code"><a href="#Download-souce-code" class="headerlink" title="Download souce code"></a>Download souce code</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src/</span><br><span class="line">wget https://github.com/roundcube/roundcubemail/releases/download/1.1.5/roundcubemail-1.1.5-complete.tar.gz</span><br><span class="line">tar zvxf roundcubemail-1.1.5-complete.tar.gz</span><br></pre></td></tr></table></figure>
+<p>Now copy the source code to web root:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp -r /usr/local/src/roundcubemail-1.1.5 /var/www/html/roundcubemail</span><br><span class="line">chown -R nginx:nginx /var/www/html/roundcubemail</span><br></pre></td></tr></table></figure></p>
+<h2 id="Database"><a href="#Database" class="headerlink" title="Database"></a>Database</h2><p>Roundcube uses MariaDB as the backend database. So create a database and add a database user:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#mysql -uroot -p</span><br><span class="line">CREATE DATABASE roundcubemail;</span><br><span class="line">GRANT ALL PRIVILEGES ON roundcubemail.* TO roundcube@localhost  IDENTIFIED BY &apos;RCpassword&apos;;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line">quit</span><br></pre></td></tr></table></figure></p>
+<h2 id="Nginx-Configuration"><a href="#Nginx-Configuration" class="headerlink" title="Nginx Configuration"></a>Nginx Configuration</h2><p>Create a new Nginx site configrration file <code>/etc/nginx/conf.d/roundcube.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">  listen 80;</span><br><span class="line">  server_name roundcube.mydomain.com;</span><br><span class="line">  return 301 https://$server_name$request_uri; # enforce https</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">   listen          443 ssl;</span><br><span class="line">   server_name     roundcube.mydomain.com;</span><br><span class="line">   root            /var/www/html/roundcubemail;</span><br><span class="line">   index           index.php;</span><br><span class="line">   charset         utf-8;</span><br><span class="line"></span><br><span class="line">   ## SSL settings</span><br><span class="line">   ssl_certificate           /etc/letsencrypt/live/mydomain.com/fullchain.pem;</span><br><span class="line">   ssl_certificate_key           /etc/letsencrypt/live/mydomain.com/privkey.pem;</span><br><span class="line">   ssl_protocols             TLSv1.2 TLSv1.1 TLSv1;</span><br><span class="line">   ssl_prefer_server_ciphers on;</span><br><span class="line">   ssl_ciphers &quot;EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS !RC4&quot;;</span><br><span class="line">   ssl_dhparam               /etc/nginx/dhparams.pem;</span><br><span class="line">   ssl_session_cache         shared:SSL:10m;</span><br><span class="line">   ssl_session_timeout       10m;</span><br><span class="line">   ssl_ecdh_curve            secp521r1;</span><br><span class="line"></span><br><span class="line">   add_header Strict-Transport-Security max-age=31536000;</span><br><span class="line">   # add_header X-Frame-Options DENY;</span><br><span class="line"></span><br><span class="line">   # auth_basic &quot;Restricted area&quot;;</span><br><span class="line">   # auth_basic_user_file /etc/nginx/passwd;</span><br><span class="line"></span><br><span class="line">   location / &#123;</span><br><span class="line">      try_files $uri $uri/ index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   location ~ \.php$ &#123;</span><br><span class="line">        try_files $uri =404;</span><br><span class="line">        fastcgi_split_path_info ^(.+\.php)(/.+)$;</span><br><span class="line">        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">        include       fastcgi_params;</span><br><span class="line">        fastcgi_pass  unix:/run/php-fpm/php-fpm.sock;</span><br><span class="line">        fastcgi_index index.php;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Reload Nginx<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl reload nginx</span><br></pre></td></tr></table></figure></p>
+<h2 id="Web-installation"><a href="#Web-installation" class="headerlink" title="Web installation"></a>Web installation</h2><p>Now I can start installation by go to <a href="https://roundcube.mydomain.com/installer/" target="_blank" rel="external">https://roundcube.mydomain.com/installer/</a></p>
+<h3 id="Check-environment"><a href="#Check-environment" class="headerlink" title="Check environment"></a>Check environment</h3><p>First the RouncCube installer will check the environment. There may be some items show as “NOT AVAILABLE”, for these items I only need make sure what I needed is “OK”</p>
+<p>I found that it complain that “Mcrypt” and “Intl” PHP modules shows as “NOT AVALIABLE”, so let’s intall them and restart PHP-FPM”<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">yum -y install php-mcrypt php-intl</span><br><span class="line">systemctl restart php-fpm</span><br></pre></td></tr></table></figure></p>
+<p>Then refreash the web page and now the environment is ready. Click “NEXT” button to go on. </p>
+<h3 id="Create-config"><a href="#Create-config" class="headerlink" title="Create config"></a>Create config</h3><p>Fill the “Database password”. Also fill in SMTP and IMAP configration. Create the config file</p>
+<div class="alert alert-warning"><i class="fa fa-bell"></i>  Don't warray to much about put in wrong configration inforamtion on the IMAP and SMTP sections. I will fix them later by manually editing the configration file later.</div>
+<h3 id="Test-config"><a href="#Test-config" class="headerlink" title="Test config"></a>Test config</h3><p>Go ahead to inatialize database.</p>
+<p>When test SMTP and IMAP there are errors. I manually edited the configured file <code>config/config.inc.php</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// ----------------------------------</span><br><span class="line">// SQL DATABASE</span><br><span class="line">// ----------------------------------</span><br><span class="line">$config[&apos;db_dsnw&apos;] = &apos;mysql://roundcube:RCpassword@localhost/roundcubemail&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// ----------------------------------</span><br><span class="line">// IMAP</span><br><span class="line">// ----------------------------------</span><br><span class="line">$config[&apos;default_host&apos;] = &apos;ssl://smtp.mydomain.com&apos;;</span><br><span class="line">$config[&apos;default_port&apos;] = 993;</span><br><span class="line">$config[&apos;imap_auth_type&apos;] = &apos;PLAIN&apos;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// ----------------------------------</span><br><span class="line">// SMTP</span><br><span class="line">// ----------------------------------</span><br><span class="line">$config[&apos;smtp_server&apos;] = &apos;tls://smtp.mydomain.com&apos;;</span><br><span class="line">$config[&apos;smtp_port&apos;] = 587;</span><br><span class="line">$config[&apos;smtp_auth_type&apos;] = &apos;PLAIN&apos;;</span><br><span class="line">$config[&apos;smtp_user&apos;] = &apos;%u&apos;;</span><br><span class="line">$config[&apos;smtp_pass&apos;] = &apos;%p&apos;;</span><br></pre></td></tr></table></figure></p>
+<p>Save the configration file. To test again, go back to<br><a href="https://roundcube.mydomain.com/installer/index.php?_step=1" target="_blank" rel="external">https://roundcube.mydomain.com/installer/index.php?_step=1</a></p>
+<p>All tests passed. Last remove the installer folder.<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rm -rf /var/www/html/roundcubemail/installer</span><br></pre></td></tr></table></figure></p>
+<p>Now Roundcube wabmail is working. I can use it at <a href="https://roundcube.mydomain.com/" target="_blank" rel="external">https://roundcube.mydomain.com/</a></p>
+<h2 id="Sieve-filter"><a href="#Sieve-filter" class="headerlink" title="Sieve filter"></a>Sieve filter</h2><p>One of the reason I use Dovecot is that I need to use Sieve filter in RoundCube Mail, so user can setup their own filter such as Vacation Autoresponse. </p>
+<h3 id="LMTP"><a href="#LMTP" class="headerlink" title="LMTP"></a>LMTP</h3><p>Till now my mail server use Postfix as the LDA(Local Delivery Agent) to diliver mails to users maildir. For sieve to work we need to use dovecot as a LDA. This means that dovecot has to write the email to the email folder of the user for the final delivery.</p>
+<p>We will configure dovecot acting as local delivery using LMTP. (The other option is using LDA, which works like a binary command, each time that postfix sends a email lda deliver is called.)</p>
+<p>Configure LMTP by editing <code>/etc/dovecot/conf.d/10-master.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">service lmtp &#123;</span><br><span class="line">   unix_listener /var/spool/postfix/private/dovecot-lmtp &#123;</span><br><span class="line">     group = postfix</span><br><span class="line">     mode = 0600</span><br><span class="line">     user = postfix</span><br><span class="line">    &#125;</span><br><span class="line">  unix_listener lmtp &#123;</span><br><span class="line">    #mode = 0666</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">  # Create inet listener only if you can&apos;t use the above UNIX socket</span><br><span class="line">  #inet_listener lmtp &#123;</span><br><span class="line">    # Avoid making LMTP visible for the entire internet</span><br><span class="line">    #address =</span><br><span class="line">    #port =</span><br><span class="line">  #&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Also set up a postmaster addr at <code>/etc/dovecot/conf.d/20-lmtp.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">protocol lmtp &#123;</span><br><span class="line">postmaster_address = postmaster@yourdomain.com</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Then we will enable lmtp protocol in <code>/etc/dovecot/dovecot.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">protocols = imap pop3  lmtp</span><br></pre></td></tr></table></figure></p>
+<p>Now I need tell Postfix to use Dovecot LDA, edit <code>/etc/postfix/main.cf</code> add lines:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#use dovecot lmtp as virtual transport</span><br><span class="line">virtual_transport = lmtp:unix:private/dovecot-lmtp</span><br></pre></td></tr></table></figure></p>
+<p>Restart Dovecot and MailScanner, send a test email then check maillog to see LMTP in action for local delivery:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Apr 24 13:29:32 smtp dovecot: master: Dovecot v2.2.10 starting up for imap, pop3, lmtp (core dumps disabled)</span><br><span class="line">...</span><br><span class="line">Apr 24 13:32:34 smtp dovecot: lmtp(3544): Connect from local</span><br><span class="line">Apr 24 13:32:35 smtp dovecot: lmtp(3544, gao@mydomain.com): ZIvkJGJx6FbYDQAA1qURPQ: msgid=&lt;56E8714F.4060405@gmail.com&gt;: saved mail to INBOX</span><br><span class="line">Apr 24 13:32:35 smtp postfix/lmtp[3543]: D23571331C6: to=&lt;gao@mydomain.com&gt;, relay=smtp.mydomain.com[private/dovecot-lmtp], delay=12, delays=11/0.31/0.24/0.81, dsn=2.0.0, status=sent (250 2.0.0 &lt;gao@mydomain.com&gt; ZIvkJGJx6FbYDQAA1qURPQ Saved)</span><br><span class="line">Apr 24 13:32:35 smtp dovecot: lmtp(3544): Disconnect from local: Successful quit</span><br><span class="line">Apr 24 13:32:35 smtp postfix/qmgr[3461]: D23571331C6: removed</span><br></pre></td></tr></table></figure>
+<h3 id="Managesieve"><a href="#Managesieve" class="headerlink" title="Managesieve"></a>Managesieve</h3><p>I use <code>dovecot-pigeonhole</code> and it’s been installed already.</p>
+<p>Enable sieve filter, edit <code>/etc/dovecot/conf.d/20-lmtp.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">protocol lmtp &#123;</span><br><span class="line">  # Space separated list of plugins to load (default is global mail_plugins).</span><br><span class="line">  mail_plugins = $mail_plugins sieve</span><br><span class="line">  postmaster_address = postmaster@mydomain.com</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Configure sieve, edit <code>/etc/dovecot/conf.d/90-sieve.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">plugin &#123;</span><br><span class="line">  # The path to the user&apos;s main active script. If ManageSieve is used, this the</span><br><span class="line">  # location of the symbolic link controlled by ManageSieve.</span><br><span class="line">  sieve = ~/sieve/.dovecot.sieve</span><br><span class="line">  sieve_dir = ~/sieve</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Configure <em>managesieve</em>, edit <code>/etc/dovecot/conf.d/20-managesieve.conf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">protocols = $protocols sieve</span><br><span class="line"></span><br><span class="line">service managesieve-login &#123;</span><br><span class="line">  inet_listener sieve &#123;</span><br><span class="line">    port = 4190</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>(Note, make sure all brackets are closed properly.)</p>
+<p>Now restart Dovecot then test to see if managesieve works:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># telnet localhost 4190</span><br><span class="line">Trying ::1...</span><br><span class="line">telnet: connect to address ::1: Connection refused</span><br><span class="line">Trying 127.0.0.1...</span><br><span class="line">Connected to localhost.</span><br><span class="line">Escape character is &apos;^]&apos;.</span><br><span class="line">&quot;IMPLEMENTATION&quot; &quot;Dovecot Pigeonhole&quot;</span><br><span class="line">&quot;SIEVE&quot; &quot;fileinto reject envelope encoded-character vacation subaddress comparator-i;ascii-numeric relational regex imap4flags copy include variables body enotify environment mailbox date ihave&quot;</span><br><span class="line">&quot;NOTIFY&quot; &quot;mailto&quot;</span><br><span class="line">&quot;SASL&quot; &quot;PLAIN LOGIN CRAM-MD5&quot;</span><br><span class="line">&quot;STARTTLS&quot;</span><br><span class="line">&quot;VERSION&quot; &quot;1.0&quot;</span><br><span class="line">OK &quot;Dovecot ready.&quot;</span><br><span class="line">^]</span><br><span class="line">telnet&gt; quit</span><br><span class="line">Connection closed.</span><br></pre></td></tr></table></figure></p>
+<h3 id="Roundcube-Plugin-SieveRules"><a href="#Roundcube-Plugin-SieveRules" class="headerlink" title="Roundcube Plugin SieveRules"></a>Roundcube Plugin SieveRules</h3><p>I will install the SieveRules plugin created by JohnDoh at Github:<br><a href="https://github.com/JohnDoh/Roundcube-Plugin-SieveRules-Managesieve" target="_blank" rel="external">https://github.com/JohnDoh/Roundcube-Plugin-SieveRules-Managesieve</a></p>
+<p>Save to roundcube plugins folder as <code>/var/www/html/roundcube/plugins/sieverules</code><br>Then make a <code>config.inc.php</code> from <code>config.inc.php.dist</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd /usr/local/src/</span><br><span class="line">git clone https://github.com/JohnDoh/Roundcube-Plugin-SieveRules-Managesieve</span><br><span class="line">cp -r Roundcube-Plugin-SieveRules-Managesieve /var/www/html/roundcubemail/plugins/sieverules</span><br><span class="line">cd /var/www/html/roundcubemail/plugins/sieverules</span><br><span class="line">cp config.inc.php.dist config.inc.php</span><br><span class="line">chown -R nginx:nginx /var/www/html/roundcubemail/plugins/sieverules</span><br></pre></td></tr></table></figure></p>
+<p>Edit <code>/var/www/html/roundcubemail/plugins/sieverules/config.inc.php</code>, set<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$config[&apos;sieverules_auth_type&apos;] = &apos;PLAIN&apos;;</span><br></pre></td></tr></table></figure></p>
+<p>Last add the plugin to <code>/var/www/html/roundcube/config/config.inc.php</code>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// List of active plugins (in plugins/ directory)</span><br><span class="line">$config[&apos;plugins&apos;] = array(</span><br><span class="line">    &apos;archive&apos;,</span><br><span class="line">    &apos;zipdownload&apos;,</span><br><span class="line">    &apos;fail2ban&apos;,</span><br><span class="line">    &apos;password&apos;,</span><br><span class="line">    &apos;jqueryui&apos;,</span><br><span class="line">    &apos;sieverules&apos;,</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p>(Note: <em>jqueryui</em> is needed for this plugin to work.)</p>
+<p>Now login to Roundcube webmail to create a filter and test it.</p>
+<hr>
+<p>Quick links:</p>
+<ul>
+<li>Part 1: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-1/">LEMP</a></li>
+<li>Part 2: <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">Postfix and Dovecot </a></li>
+<li>Part 3: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-3/">MailScanner and MailWatch</a></li>
+<li>Part 4: <a href="http://blog.pztop.com/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/">SPF, DKIM and DMARC</a></li>
+<li>Part 5: <a href="http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/">Roundcube Webmail</a></li>
+<li>Part 6: <a href="http://blog.pztop.com/2016/04/26/Email-Server-With-Postfix-Dovecot-MailScanner-6/">Afterthoughts</a></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+            <a href="/tags/Dovecot/" rel="tag">#Dovecot</a>
+          
+            <a href="/tags/Roundcube/" rel="tag">#Roundcube</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/21/Email-Server-With-Postfix-Dovecot-MailScanner-4/" rel="next" title="Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)">
+                <i class="fa fa-chevron-left"></i> Email Server With Postfix Dovecot and MailScanner (Part 4 - SPF DKIM and DMARC)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/04/25/Namesilo-with-DDNS/" rel="prev" title="Namesilo with DDNS">
+                Namesilo with DDNS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Download-souce-code"><span class="nav-number">1.</span> <span class="nav-text">Download souce code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Database"><span class="nav-number">2.</span> <span class="nav-text">Database</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nginx-Configuration"><span class="nav-number">3.</span> <span class="nav-text">Nginx Configuration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-installation"><span class="nav-number">4.</span> <span class="nav-text">Web installation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Check-environment"><span class="nav-number">4.1.</span> <span class="nav-text">Check environment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-config"><span class="nav-number">4.2.</span> <span class="nav-text">Create config</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-config"><span class="nav-number">4.3.</span> <span class="nav-text">Test config</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sieve-filter"><span class="nav-number">5.</span> <span class="nav-text">Sieve filter</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LMTP"><span class="nav-number">5.1.</span> <span class="nav-text">LMTP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Managesieve"><span class="nav-number">5.2.</span> <span class="nav-text">Managesieve</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Roundcube-Plugin-SieveRules"><span class="nav-number">5.3.</span> <span class="nav-text">Roundcube Plugin SieveRules</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/';
+      var disqus_title = 'Email Server With Postfix Dovecot and MailScanner (Part 5 - Roundcube webmail)';
+      var disqus_url = 'http://blog.pztop.com/2016/04/25/Email-Server-With-Postfix-Dovecot-MailScanner-5/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

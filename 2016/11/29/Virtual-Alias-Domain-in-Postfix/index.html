@@ -1,0 +1,684 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Postfix," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="A reader Remo Mattei commented on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. 
+Since I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Virtual Alias Domain in Postfix">
+<meta property="og:url" content="http://blog.pztop.com/2016/11/29/Virtual-Alias-Domain-in-Postfix/index.html">
+<meta property="og:site_name" content="Backyard·后花园">
+<meta property="og:description" content="A reader Remo Mattei commented on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. 
+Since I">
+<meta property="og:updated_time" content="2016-11-29T21:46:00.334Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Virtual Alias Domain in Postfix">
+<meta name="twitter:description" content="A reader Remo Mattei commented on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. 
+Since I">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: 'Author'
+    }
+  };
+</script>
+
+  <title> Virtual Alias Domain in Postfix | Backyard·后花园 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Backyard·后花园</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'ZDLd_wE2gGn_ScsyQEfm','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Virtual Alias Domain in Postfix
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2016-11-29T13:45:28-08:00" content="2016-11-29">
+              2016-11-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Email-Server/" itemprop="url" rel="index">
+                    <span itemprop="name">Email Server</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/29/Virtual-Alias-Domain-in-Postfix/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/11/29/Virtual-Alias-Domain-in-Postfix/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>A reader Remo Mattei <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/#comments">commented</a> on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. </p>
+<p>Since I don’t need this feature in my current setup, so it got ignored when I built and tested my mail system few months ago. After reading some documents online I managed get this work.</p>
+<a id="more"></a>
+<h2 id="So-what-is-Virtual-Alias-Domain"><a href="#So-what-is-Virtual-Alias-Domain" class="headerlink" title="So what is Virtual Alias Domain?"></a>So what is Virtual Alias Domain?</h2><p>Here is the defination from the official <a href="http://www.postfix.org/virtual.5.html" target="_blank" rel="external">Postfix site</a>:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">VIRTUAL ALIAS DOMAINS</span><br><span class="line">       Besides virtual aliases, the virtual alias table can also  be  used  to</span><br><span class="line">       implement  virtual  alias  domains.  With  a  virtual alias domain, all</span><br><span class="line">       recipient addresses are aliased to addresses in other domains.</span><br><span class="line"></span><br><span class="line">       Virtual alias domains are not to be confused with the  virtual  mailbox</span><br><span class="line">       domains  that are implemented with the Postfix virtual(8) mail delivery</span><br><span class="line">       agent. With virtual mailbox domains, each recipient  address  can  have</span><br><span class="line">       its own mailbox.</span><br><span class="line"></span><br><span class="line">       With  a  virtual alias domain, the virtual domain has its own user name</span><br><span class="line">       space. Local (i.e. non-virtual) usernames are not visible in a  virtual</span><br><span class="line">       alias  domain.  In particular, local aliases(5) and local mailing lists</span><br><span class="line">       are not visible as localname@virtual-alias.domain.</span><br></pre></td></tr></table></figure></p>
+<p>Confused? A little bit. Let’s use an example to explain it:</p>
+<p>Let’s say I am hosting emails for both domain <em>example.com</em> and <em>example.net</em>. All users will have both <em>.com</em> and <em>.net</em> email addresses. And we want all the emails send to <em>.net</em> to deliver to corrsponding <em>.com</em> address.</p>
+<p>With the Virtual Alias Domain feature in Postfix, I can simply do:</p>
+<ol>
+<li>Create domain <em>example.com</em> and <em>example.net</em>;</li>
+<li>Setup virtual alias domain <em>example.net</em> with the target domain set to <em>example.com</em>;  </li>
+<li>Add Mailbox for <em>example.com</em> users (e.g. joe@example.com and bob@example.com.,etc.)</li>
+</ol>
+<p>Now all the email send to <em>joe@example.net</em> will be delivered to <em>joe@example.com</em> mailbox. So does for Bob.</p>
+<h2 id="Postfix-Configuration"><a href="#Postfix-Configuration" class="headerlink" title="Postfix Configuration"></a>Postfix Configuration</h2><p>If you followed my <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2/">previous post</a> on setup Postfix and PostfixAdmin, then you can continue here. If you use different setup, then you need alter the configuration accordingly.</p>
+<p>Here I’ll show you how my configuration to:</p>
+<ol>
+<li>Enable Postfix to use Virtual Alias Domain feature;</li>
+<li>Create MySQL connectors to connect to PostFixAdmin database. </li>
+</ol>
+<h3 id="Postfix-main-cf"><a href="#Postfix-main-cf" class="headerlink" title="Postfix main.cf"></a>Postfix main.cf</h3><p>In the <a href="http://blog.pztop.com/2016/04/20/Email-Server-With-Postfix-Dovecot-MailScanner-2">Part 2</a> I have the following settings in <code>/etc/postfix/main.cf</code><br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">relay_domains = proxy:mysql:/etc/postfix/mysql-relay_domains_maps.cf</span><br><span class="line">virtual_alias_maps = proxy:mysql:/etc/postfix/mysql-virtual_alias_maps.cf,regexp:/etc/postfix/virtual_regexp</span><br><span class="line">virtual_mailbox_domains = proxy:mysql:/etc/postfix/mysql-virtual_domains_maps.cf</span><br><span class="line">virtual_mailbox_maps = proxy:mysql:/etc/postfix/mysql-virtual_mailbox_maps.cf</span><br><span class="line">virtual_mailbox_limit_maps = proxy:mysql:/etc/postfix/mysql-virtual_mailbox_limit_maps.cf</span><br><span class="line">proxy_read_maps = $local_recipient_maps $mydestination $virtual_alias_maps $virtual_alias_domains $virtual_mailbox_maps $virtual_mailbox_domains $relay_recipient_maps $relay_domains $canonical_maps $sender_canonical_maps $recipient_canonical_maps $relocated_maps $transport_maps $mynetworks $smtpd_sender_login_maps $sender_bcc_maps $recipient_bcc_maps $smtp_generic_maps $lmtp_generic_maps $alias_maps $virtual_mailbox_limit_maps</span><br></pre></td></tr></table></figure></p>
+<p>Now use the following lines to replace the following three lines respectively:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">virtual_mailbox_domains = proxy:mysql:/etc/postfix/mysql-virtual_domains_maps.cf</span><br><span class="line">virtual_alias_maps =</span><br><span class="line">   proxy:mysql:/etc/postfix/mysql-virtual_alias_maps.cf,</span><br><span class="line">   proxy:mysql:/etc/postfix/mysql-virtual_alias_domain_maps.cf,</span><br><span class="line">   proxy:mysql:/etc/postfix/mysql-virtual_alias_domain_catchall_maps.cf</span><br><span class="line">virtual_mailbox_maps =</span><br><span class="line">   proxy:mysql:/etc/postfix/mysql-virtual_mailbox_maps.cf,</span><br><span class="line">   proxy:mysql:/etc/postfix/mysql-virtual_alias_domain_mailbox_maps.cf</span><br></pre></td></tr></table></figure></p>
+<h3 id="MySQL-connection-configuration"><a href="#MySQL-connection-configuration" class="headerlink" title="MySQL connection configuration"></a>MySQL connection configuration</h3><p>Now we need Postfix to make connections to MySQL databse (Created by PostfixAdmin) and to qurey the database.<br>So let’s create 3 new configration files:</p>
+<ol>
+<li><p><code>/etc/postfix/mysql-virtual_alias_domain_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">hosts = localhost</span><br><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT goto FROM alias,alias_domain WHERE alias_domain.alias_domain = &apos;%d&apos; and alias.address = CONCAT(&apos;%u&apos;, &apos;@&apos;, alias_domain.target_domain) AND alias.active = 1 AND alias_domain.active=&apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-virtual_alias_domain_catchall_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">hosts = localhost</span><br><span class="line">dbname = postfix</span><br><span class="line">query  = SELECT goto FROM alias,alias_domain WHERE alias_domain.alias_domain = &apos;%d&apos; and alias.address = CONCAT(&apos;@&apos;, alias_domain.target_domain) AND alias.active = 1 AND alias_domain.active=&apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>/etc/postfix/mysql-virtual_alias_domain_mailbox_maps.cf</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">hosts = localhost</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT maildir FROM mailbox,alias_domain WHERE alias_domain.alias_domain = &apos;%d&apos; and mailbox.username = CONCAT(&apos;%u&apos;, &apos;@&apos;, alias_domain.target_domain) AND mailbox.active = 1 AND alias_domain.active=&apos;1&apos;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>Do not forget to set the correct permission on these new files:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chgrp postfix /etc/postfix/mysql-virtual_alias_domain*</span><br></pre></td></tr></table></figure></p>
+<p>Restart Postfix (or MailScanner), check maillog and make sure no errors.</p>
+<h2 id="PostfixAdmin-Setup"><a href="#PostfixAdmin-Setup" class="headerlink" title="PostfixAdmin Setup"></a>PostfixAdmin Setup</h2><p>Go to PostfixAdmin and login as administrator. Add two new domain <em>example.com</em> and <em>example.net</em>.</p>
+<p>Then go to<code>Virtual List</code> then <code>Add Alias Domain</code>. Select <em>example.net</em> as the Alias Domain. Set the Target Domain to <em>example.com</em>.</p>
+<p>Now add an user mailbox for domain <em>example.com</em>. For example joe@example.com</p>
+<h2 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h2><p>Send an email to see the virtual alias domain feature in action. The email send to joe@example.net should arrive to the inbox of joe@example.com</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Postfix/" rel="tag">#Postfix</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/01/Asterisk13-on-RaspberryPi3/" rel="next" title="Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec">
+                <i class="fa fa-chevron-left"></i> Vanilla Installation of Asterisk 13 on Raspberry Pi 3 with G729 Codec
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Gao" />
+          <p class="site-author-name" itemprop="name">Gao</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#So-what-is-Virtual-Alias-Domain"><span class="nav-number">1.</span> <span class="nav-text">So what is Virtual Alias Domain?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Postfix-Configuration"><span class="nav-number">2.</span> <span class="nav-text">Postfix Configuration</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Postfix-main-cf"><span class="nav-number">2.1.</span> <span class="nav-text">Postfix main.cf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MySQL-connection-configuration"><span class="nav-number">2.2.</span> <span class="nav-text">MySQL connection configuration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PostfixAdmin-Setup"><span class="nav-number">3.</span> <span class="nav-text">PostfixAdmin Setup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Test"><span class="nav-number">4.</span> <span class="nav-text">Test</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gao</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'pztop';
+      var disqus_identifier = '2016/11/29/Virtual-Alias-Domain-in-Postfix/';
+      var disqus_title = 'Virtual Alias Domain in Postfix';
+      var disqus_url = 'http://blog.pztop.com/2016/11/29/Virtual-Alias-Domain-in-Postfix/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>

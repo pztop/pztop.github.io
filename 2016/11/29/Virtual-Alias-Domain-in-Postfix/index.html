@@ -88,7 +88,7 @@ Since I">
 <meta property="og:site_name" content="Backyard·后花园">
 <meta property="og:description" content="A reader Remo Mattei commented on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. 
 Since I">
-<meta property="og:updated_time" content="2016-11-29T21:46:00.334Z">
+<meta property="og:updated_time" content="2016-11-29T22:10:55.935Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Virtual Alias Domain in Postfix">
 <meta name="twitter:description" content="A reader Remo Mattei commented on my article about a Virtual Alias Domain issue. He got the Postfix 550 “Recipient address rejected: User unknown in virtual mailbox table;” error in maillog. 
@@ -369,7 +369,7 @@ Since I">
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user = postfix</span><br><span class="line">password = PApassword</span><br><span class="line">hosts = localhost</span><br><span class="line">dbname = postfix</span><br><span class="line">query = SELECT maildir FROM mailbox,alias_domain WHERE alias_domain.alias_domain = &apos;%d&apos; and mailbox.username = CONCAT(&apos;%u&apos;, &apos;@&apos;, alias_domain.target_domain) AND mailbox.active = 1 AND alias_domain.active=&apos;1&apos;</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>Do not forget to set the correct permission on these new files:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chgrp postfix /etc/postfix/mysql-virtual_alias_domain*</span><br></pre></td></tr></table></figure></p>
+<p>Do not forget to set the correct permission on these new files:<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">chgrp postfix /etc/postfix/mysql-virtual_alias_domain*</span><br><span class="line">chmod 640 /etc/postfix/mysql-virtual_alias_domain_*</span><br></pre></td></tr></table></figure></p>
 <p>Restart Postfix (or MailScanner), check maillog and make sure no errors.</p>
 <h2 id="PostfixAdmin-Setup"><a href="#PostfixAdmin-Setup" class="headerlink" title="PostfixAdmin Setup"></a>PostfixAdmin Setup</h2><p>Go to PostfixAdmin and login as administrator. Add two new domain <em>example.com</em> and <em>example.net</em>.</p>
 <p>Then go to<code>Virtual List</code> then <code>Add Alias Domain</code>. Select <em>example.net</em> as the Alias Domain. Set the Target Domain to <em>example.com</em>.</p>
